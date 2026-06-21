@@ -180,6 +180,17 @@ COMUNICADO DE PRENSA:
       nombre  TEXT NOT NULL,
       aplicado_en TEXT DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS kustomizations (
+      id TEXT PRIMARY KEY,
+      prompt TEXT NOT NULL,
+      css_overrides TEXT,
+      explanation TEXT,
+      status TEXT DEFAULT 'preview',
+      activo INTEGER DEFAULT 0,
+      creado_en TEXT DEFAULT (datetime('now')),
+      aplicado_en TEXT
+    );
   `);
   console.log(`[Kore] ✓ Base de datos lista`);
 }
@@ -1379,9 +1390,154 @@ function cargarKits() {
 //  ARCHIVOS ESTÁTICOS + SPA catch-all
 // ══════════════════════════════════════════════
 
+// KUSTOMIZER IA - Customizacion de diseño con IA
+
+function sanitizeCSS(css) {
+  if (!css) return '';
+  let clean = String(css);
+  clean = clean.replace(/@import\s+[^;]+;?/gi, '');
+  clean = clean.replace(/@charset\s+[^;]+;?/gi, '');
+  clean = clean.replace(/expression\s*\(/gi, '(');
+  clean = clean.replace(/url\s*\(\s*['"]?\s*javascript:/gi, 'url(');
+  clean = clean.replace(/(body|html)\s*\{[^}]*position\s*:\s*fixed[^}]*\}/gi, (m) =>
+    m.replace(/position\s*:\s*fixed/gi, 'position: relative'));
+  if (clean.length > 51200) clean = clean.slice(0, 51200) + '\n/* CSS truncado por limite de tamano */';
+  return clean.trim();
+}
+
+function extractKlikCSS(html) {
+  if (!html) return '';
+  const styles = [];
+  const regex = /<style[^>]*>([\s\S]*?)<\/style>/gi;
+  let match;
+  while ((match = regex.exec(html)) !== null) { styles.push(match[1]); }
+  return styles.join('\n\n');
+}
+
+function extractKlikStructure(html) {
+  if (!html) return { classes: [], ids: [] };
+  const classes = new Set();
+  const ids = new Set();
+  const classRegex = /class\s*=\s*['"]([^'"]+)['"]/gi;
+  let m;
+  while ((m = classRegex.exec(html)) !== null) {
+    m[1].split(/\s+/).forEach(c => { if (c.length > 2) classes.add(c); });
+  }
+  const idRegex = /id\s*=\s*['"]([^'"]+)['"]/gi;
+  while ((m = idRegex.exec(html)) !== null) {
+    if (m[1].length > 2) ids.add(m[1]);
+  }
+  return { classes: Array.from(classes).slice(0, 100), ids: Array.from(ids).slice(0, 30) };
+}
+
+app.get('/admin/api/kustomizations', requireAuth, (req, res) => {
+  res.json(db.prepare('SELECT * FROM kustomizations ORDER BY creado_en DESC').all());
+});
+
+app.get('/api/kustomizations/css', (req, res) => {
+  const rows = db.prepare('SELECT css_overrides FROM kustomizations WHERE activo=1 ORDER BY creado_en DESC').all();
+  const css = rows.map(r => r.css_overrides || '').filter(Boolean).join('\n\n');
+  res.type('text/css').send(css || '/* Sin kustomizaciones activas */');
+});
+
+app.post('/admin/api/ai/kustomize', requireAdmin, async (req, res) => {
+  try {
+    const { prompt } = req.body;
+    if (!prompt || prompt.trim().length < 5)
+      return res.status(400).json({ error: 'Describe que cambio quieres hacer' });
+
+    const klikHtmlContent = klikHtml();
+    if (!klikHtmlContent)
+      return res.status(400).json({ error: 'No hay Klik activo. Activa un Klik primero.' });
+
+    const currentCSS = extractKlikCSS(klikHtmlContent);
+    const structure = extractKlikStructure(klikHtmlContent);
+
+    const kconfigRows = db.prepare('SELECT * FROM kconfig').all();
+    let kconfig = {};
+    try { kconfig = JSON.parse(kconfigRows.find(r => r.clave === 'json')?.valor || '{}'); }
+    catch { kconfig = Object.fromEntries(kconfigRows.map(r => [r.clave, r.valor])); }
+
+    const activeOverrides = db.prepare('SELECT css_overrides FROM kustomizations WHERE activo=1 ORDER BY creado_en DESC').all();
+    const currentOverrides = activeOverrides.map(r => r.css_overrides || '').filter(Boolean).join('\n\n');
+
+    const iaPrompt = `Eres un diseniador web experto en CSS. El usuario quiere personalizar el diseno de su sitio web (un Klik de Kore Framework).
+
+SOLICITUD DEL USUARIO:
+${prompt.trim()}
+
+CONTEXTO DEL SITIO:
+- Clases CSS disponibles: ${structure.classes.join(', ')}
+- IDs principales: ${structure.ids.join(', ')}
+- Colores actuales: accent=${kconfig.accent || '#00BFFF'}, accent2=${kconfig.accent2 || '#0099CC'}
+- Nombre del sitio: ${kconfig.nombre || PROJECT_NAME}
+
+CSS ACTUAL DEL KLIK (referencia, no lo repitas, solo crea overrides):
+${currentCSS.slice(0, 3000)}
+
+${currentOverrides ? `KUSTOMIZACIONES CSS ACTIVAS (respeta estos cambios y construye sobre ellos):\n${currentOverrides.slice(0, 3000)}\n` : ''}
+
+REGLAS:
+1. Genera UNICAMENTE CSS valido (sin HTML, sin JavaScript, sin explicaciones)
+2. Usa selectores especificos basados en las clases e IDs del sitio
+3. No uses !important a menos que sea estrictamente necesario
+4. Manten el CSS limpio y organizado con comentarios breves
+5. Respeta la accesibilidad (contraste, tamanos minimos)
+6. No rompas la estructura responsive del sitio
+7. Si el usuario pide algo que requiere cambios estructurales (no solo CSS), explica brevemente al final en un comentario /* NOTA: ... */
+
+Devuelve UNICAMENTE el codigo CSS, sin texto antes ni despues, sin bloques de codigo markdown:`;
+
+    const respuesta = await claudeCompletar(iaPrompt);
+    const cssLimpio = sanitizeCSS(respuesta.trim().replace(/^```(?:css)?\s*/i, '').replace(/\s*```$/, ''));
+
+    if (!cssLimpio || cssLimpio.length < 10)
+      return res.status(500).json({ error: 'La IA no genero CSS valido. Intenta con una descripcion mas especifica.' });
+
+    let explanation = '';
+    const notaMatch = cssLimpio.match(/\/\*\s*NOTA:\s*([\s\S]*?)\*\//i);
+    if (notaMatch) explanation = notaMatch[1].trim();
+
+    const id = uid();
+    db.prepare('INSERT INTO kustomizations (id, prompt, css_overrides, explanation, status, activo) VALUES (?,?,?,?,?,0)')
+      .run(id, prompt.trim(), cssLimpio, explanation, 'preview');
+
+    console.log(`[Kore] Kustomizacion generada: ${id} (${prompt.trim().slice(0, 50)}...)`);
+    res.json({ ok: true, id, css: cssLimpio, explanation });
+  } catch (e) {
+    console.error(`[Kore] Error kustomize: ${e.message}`);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.patch('/admin/api/kustomizations/:id/apply', requireKapitan, (req, res) => {
+  const row = db.prepare('SELECT id FROM kustomizations WHERE id=?').get(req.params.id);
+  if (!row) return res.status(404).json({ error: 'Kustomizacion no encontrada' });
+  db.prepare("UPDATE kustomizations SET activo=1, status='applied', aplicado_en=datetime('now') WHERE id=?")
+    .run(req.params.id);
+  _klik.mtime = 0;
+  console.log(`[Kore] Kustomizacion aplicada: ${req.params.id}`);
+  res.json({ ok: true });
+});
+
+app.patch('/admin/api/kustomizations/:id/revert', requireKapitan, (req, res) => {
+  const row = db.prepare('SELECT id FROM kustomizations WHERE id=?').get(req.params.id);
+  if (!row) return res.status(404).json({ error: 'Kustomizacion no encontrada' });
+  db.prepare("UPDATE kustomizations SET activo=0, status='reverted' WHERE id=?")
+    .run(req.params.id);
+  _klik.mtime = 0;
+  console.log(`[Kore] Kustomizacion revertida: ${req.params.id}`);
+  res.json({ ok: true });
+});
+
+app.delete('/admin/api/kustomizations/:id', requireKapitan, (req, res) => {
+  db.prepare('DELETE FROM kustomizations WHERE id=?').run(req.params.id);
+  res.json({ ok: true });
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ── Cache del Klik HTML en memoria (se invalida si cambia el archivo) ──
+// -- Cache del Klik HTML en memoria (se invalida si cambia el archivo) --
 const _klik = { html: null, mtime: 0, path: path.join(__dirname, 'public', 'index.html') };
 function klikHtml() {
   try {
@@ -1408,8 +1564,19 @@ app.get('*', (req, res) => {
     return res.status(404).json({ error: 'No encontrado' });
   }
 
-  const html = klikHtml();
+  let html = klikHtml();
   if (!html) return res.status(404).send('Klik no instalado');
+
+  // Inyectar CSS de kustomizaciones activas (kustomizer IA)
+  try {
+    const kRows = db.prepare('SELECT css_overrides FROM kustomizations WHERE activo=1 ORDER BY creado_en DESC').all();
+    if (kRows.length) {
+      const kustomCSS = kRows.map(r => r.css_overrides || '').filter(Boolean).join('\n\n');
+      if (kustomCSS) {
+        html = html.replace('</head>', `<style id="kore-kustomizations">\n${kustomCSS}\n</style>\n</head>`);
+      }
+    }
+  } catch { /* sin kustomizaciones */ }
 
   // SSR parcial del hero — solo en la portada (/)
   if (req.path === '/') {

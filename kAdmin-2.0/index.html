@@ -620,6 +620,11 @@
         <svg viewBox="0 0 16 16"><path d="M8 5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM4.5 6.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0 0 14A7 7 0 0 0 8 1z"/></svg>
         kCostumizer
       </button>
+      <button class="k-nav-btn" data-section="kustomizer-ia" id="nav-kustomizer-ia">
+        <svg viewBox="0 0 16 16"><path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"/></svg>
+        kustomizer IA
+        <span class="k-nav-ia-badge">IA</span>
+      </button>
       <button class="k-nav-btn" data-section="banners" id="nav-banners">
         <svg viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H2z"/></svg>
         Banners
@@ -830,6 +835,70 @@
           <div class="k-loading">Cargando kCostumizer…</div>
         </div>
       </section>
+
+      <!-- ══ KUSTOMIZER IA ═══════════════════════════════════════════ -->
+      <section id="s-kustomizer-ia" style="display:none">
+
+        <div class="k-panel">
+          <div class="k-ia-badge">
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"/></svg>
+            Claude AI · Personaliza tu sitio con lenguaje natural
+          </div>
+          <div class="k-panel-title">Describe los cambios que quieres hacer</div>
+          <p style="color:var(--k-text-dim);font-size:13px;line-height:1.65;margin-bottom:16px">
+            Escribe en lenguaje natural qué cambios quieres hacerle al diseño de tu sitio.
+            <strong style="color:var(--k-text)">Claude generara el CSS automaticamente.</strong>
+            Podras previsualizar, aplicar y revertir los cambios cuando quieras.
+          </p>
+
+          <div class="k-field k-full" style="margin-bottom:14px">
+            <label class="k-label">Que quieres cambiar?</label>
+            <textarea class="k-textarea" id="kustomizer-prompt" style="min-height:120px"
+                      placeholder="Ej: Quiero que el header sea mas grande, con sombra suave y esquinas redondeadas. Los titulos mas llamativos. El sitio se vea mas moderno."></textarea>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+            <button class="k-btn k-btn-primary" id="btn-kustomize" onclick="generarKustomizacion()">
+              Generar CSS con IA
+            </button>
+            <button class="k-btn k-btn-ghost" onclick="limpiarKustomizer()" style="font-size:12px">
+              Limpiar
+            </button>
+            <span id="kustomizer-status"></span>
+          </div>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+            <button class="k-btn k-btn-ghost" style="font-size:11px;padding:5px 10px" onclick="quickKustom('Quiero el sitio mas moderno con esquinas redondeadas y sombras suaves')">Mas moderno</button>
+            <button class="k-btn k-btn-ghost" style="font-size:11px;padding:5px 10px" onclick="quickKustom('Quiero tipografia mas grande y legible')">Tipografia grande</button>
+            <button class="k-btn k-btn-ghost" style="font-size:11px;padding:5px 10px" onclick="quickKustom('Quiero modo oscuro con fondo oscuro y texto claro')">Modo oscuro</button>
+            <button class="k-btn k-btn-ghost" style="font-size:11px;padding:5px 10px" onclick="quickKustom('Quiero mas espaciado entre secciones, que respire mas')">Mas espaciado</button>
+            <button class="k-btn k-btn-ghost" style="font-size:11px;padding:5px 10px" onclick="quickKustom('Quiero animaciones suaves en hover de botones y enlaces')">Animaciones hover</button>
+          </div>
+        </div>
+
+        <div class="k-panel" id="kustomizer-preview-panel" style="display:none">
+          <div class="k-ia-badge" style="background:rgba(52,211,153,0.1);color:var(--k-success)">
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>
+            CSS generado — revisa antes de aplicar
+          </div>
+          <div class="k-panel-title">CSS generado por IA</div>
+          <div id="kustomizer-explanation" style="font-size:12px;color:var(--k-text-dim);margin-bottom:12px"></div>
+          <textarea class="k-textarea" id="kustomizer-css-preview" style="min-height:200px;font-family:monospace;font-size:12px;background:var(--k-bg2)"></textarea>
+          <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid var(--k-border)">
+            <button class="k-btn k-btn-ghost" onclick="descartarKustomizacion()">Descartar</button>
+            <button class="k-btn k-btn-success" id="btn-aplicar-kustom" onclick="aplicarKustomizacion()">
+              Aplicar al sitio
+            </button>
+          </div>
+        </div>
+
+        <div class="k-panel">
+          <div class="k-panel-title">Historial de kustomizaciones</div>
+          <div id="kustomizer-historial"><div class="k-loading">Cargando…</div></div>
+        </div>
+
+      </section>
+      <!-- ══ FIN KUSTOMIZER IA ══════════════════════════════════════ -->
 
       <!-- ── kConfig (formulario generado dinámicamente desde kconfig_schema del Klik activo) ── -->
       <section id="s-kconfig" style="display:none">
@@ -1072,6 +1141,7 @@
     noticias: 'Noticias', comunicados: 'Comunicados IA',
     banners: 'Banners', popup: 'Popup', usuarios: 'Usuarios',
     kconfig: 'kCostumizer', kcostumizer: 'kCostumizer',
+    'kustomizer-ia': 'kustomizer IA',
     config: 'Configuración', kliks: 'Kliks', kits: 'Kits'
   };
   const SECTIONS_WITH_NEW = ['tiers','agenda','noticias','banners','usuarios'];
@@ -1146,6 +1216,9 @@
             panelProm.style.display = 'none';
           }
         }
+        break;
+      case 'kustomizer-ia':
+        loadKustomizerIA();
         break;
       default:
         if (S.customKit && S.customKit.id === s) loadCustomKit(S.customKit);
@@ -2615,6 +2688,163 @@
       st.style.color = 'var(--k-danger)';
       st.textContent = `✕ ${e.message}`;
     } finally { btn.disabled = false; }
+  };
+
+  /* ══════════════════════════════════════════════════════════
+     KUSTOMIZER IA — Personalización de diseño con IA
+     ══════════════════════════════════════════════════════════ */
+  
+  let _kustomizacionActual = null;
+
+  async function loadKustomizerIA() {
+    // Cargar historial de kustomizaciones
+    const historial = $('kustomizer-historial');
+    if (historial) {
+      historial.innerHTML = '<div class="k-loading">Cargando…</div>';
+      try {
+        const data = await api('GET', '/admin/api/kustomizations');
+        if (!data || !data.length) {
+          historial.innerHTML = '<p style="color:var(--k-text2);font-size:13px;padding:8px 0">No hay kustomizaciones guardadas aún.</p>';
+        } else {
+          historial.innerHTML = `<table class="k-table" style="font-size:12px">
+            <thead><tr><th>Prompt</th><th>Estado</th><th style="width:140px">Acciones</th></tr></thead>
+            <tbody>${data.map(k => `
+              <tr>
+                <td style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(k.prompt)}</td>
+                <td>${k.activo ? '<span class="k-badge k-badge--on">Aplicado</span>' : '<span class="k-badge k-badge--off">Guardado</span>'}</td>
+                <td><div class="k-row-actions" style="gap:4px">
+                  ${k.activo 
+                    ? `<button class="k-icon-btn" onclick="revertirKustomizacion('${k.id}')">Revertir</button>` 
+                    : `<button class="k-icon-btn" onclick="aplicarKustomizacionGuardada('${k.id}')">Aplicar</button>`}
+                  <button class="k-icon-btn k-icon-btn--del" onclick="eliminarKustomizacion('${k.id}')">Eliminar</button>
+                </div></td>
+              </tr>`).join('')}
+            </tbody>
+          </table>`;
+        }
+      } catch(e) {
+        historial.innerHTML = `<p style="color:var(--k-danger);font-size:13px">${esc(e.message)}</p>`;
+      }
+    }
+  }
+
+  window.generarKustomizacion = async function() {
+    const prompt = $('kustomizer-prompt')?.value?.trim();
+    if (!prompt || prompt.length < 5) {
+      flash('Describe qué cambios quieres hacer al diseño', 'warn');
+      return;
+    }
+
+    const btn = $('btn-kustomize');
+    const status = $('kustomizer-status');
+    btn.disabled = true;
+    status.innerHTML = '<span class="k-ia-status"><span class="k-ia-spinner"></span> Generando CSS con IA…</span>';
+    $('kustomizer-preview-panel').style.display = 'none';
+
+    try {
+      const resultado = await api('POST', '/admin/api/ai/kustomize', { prompt });
+      if (!resultado?.ok) throw new Error(resultado?.error || 'Error generando CSS');
+
+      _kustomizacionActual = {
+        id: resultado.id,
+        css: resultado.css,
+        explanation: resultado.explanation,
+        prompt
+      };
+
+      // Mostrar preview
+      $('kustomizer-css-preview').value = resultado.css;
+      const explDiv = $('kustomizer-explanation');
+      if (explDiv) {
+        explDiv.textContent = resultado.explanation || '';
+        explDiv.style.display = resultado.explanation ? '' : 'none';
+      }
+      $('kustomizer-preview-panel').style.display = '';
+      $('kustomizer-preview-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      status.innerHTML = '<span style="color:var(--k-success);font-size:12px">✓ CSS generado — revisa antes de aplicar</span>';
+    } catch(e) {
+      status.innerHTML = `<span style="color:var(--k-danger);font-size:12px">✕ ${esc(e.message)}</span>`;
+      flash(e.message, 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  };
+
+  window.quickKustom = function(prompt) {
+    $('kustomizer-prompt').value = prompt;
+    $('kustomizer-prompt').focus();
+  };
+
+  window.limpiarKustomizer = function() {
+    $('kustomizer-prompt').value = '';
+    $('kustomizer-status').innerHTML = '';
+    $('kustomizer-preview-panel').style.display = 'none';
+    _kustomizacionActual = null;
+  };
+
+  window.descartarKustomizacion = function() {
+    $('kustomizer-preview-panel').style.display = 'none';
+    $('kustomizer-prompt').value = '';
+    $('kustomizer-status').innerHTML = '';
+    _kustomizacionActual = null;
+  };
+
+  window.aplicarKustomizacion = async function() {
+    if (!_kustomizacionActual?.id) {
+      flash('No hay kustomización para aplicar', 'warn');
+      return;
+    }
+
+    const btn = $('btn-aplicar-kustom');
+    btn.disabled = true;
+
+    try {
+      await api('PATCH', `/admin/api/kustomizations/${_kustomizacionActual.id}/apply`);
+      flash('✓ Kustomización aplicada al sitio — recarga la página pública para ver los cambios');
+      $('kustomizer-preview-panel').style.display = 'none';
+      $('kustomizer-prompt').value = '';
+      $('kustomizer-status').innerHTML = '';
+      _kustomizacionActual = null;
+      loadKustomizerIA(); // Recargar historial
+    } catch(e) {
+      flash(`Error al aplicar: ${e.message}`, 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  };
+
+  window.aplicarKustomizacionGuardada = async function(id) {
+    if (!confirm('¿Aplicar esta kustomización al sitio público?')) return;
+    try {
+      await api('PATCH', `/admin/api/kustomizations/${id}/apply`);
+      flash('✓ Kustomización aplicada');
+      loadKustomizerIA();
+    } catch(e) {
+      flash(e.message, 'err');
+    }
+  };
+
+  window.revertirKustomizacion = async function(id) {
+    if (!confirm('¿Revertir esta kustomización? El sitio volverá al diseño anterior.')) return;
+    try {
+      await api('PATCH', `/admin/api/kustomizations/${id}/revert`);
+      flash('✓ Kustomización revertida');
+      loadKustomizerIA();
+    } catch(e) {
+      flash(e.message, 'err');
+    }
+  };
+
+  window.eliminarKustomizacion = async function(id) {
+    if (!confirm('¿Eliminar esta kustomización? No se puede deshacer.')) return;
+    try {
+      await api('DELETE', `/admin/api/kustomizations/${id}`);
+      flash('Kustomización eliminada');
+      loadKustomizerIA();
+    } catch(e) {
+      flash(e.message, 'err');
+    }
   };
 
   /* ── Bottom Nav mobile ── */
