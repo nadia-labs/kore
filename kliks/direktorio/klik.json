@@ -1,0 +1,90 @@
+{
+  "id": "direktorio",
+  "nombre": "Klik Direktorio",
+  "version": "1.0",
+  "autor": "nadIA Labs",
+  "descripcion": "Frontend PWA para directorios geolocalizados con tiers de visibilidad (VIP, Destacado, Visible, Básico), mapa Leaflet, buscador filtrable y recomendación IA por proximidad.",
+  "kore_min": "2.6",
+  "endpoints": ["/api/config/klik", "/api/locales", "/api/banners", "/api/agenda", "/api/popup"],
+  "kits": ["tiers", "banners", "popup"],
+  "vistas": ["/", "/mapa", "/direktorio", "/local/[slug]"],
+  "notas": [
+    "Tier VIP: gold fijo (#D4A84B), posición prioritaria en home y direktorio",
+    "Tier Destacado: usa --k-accent del proyecto, carrusel horizontal en home",
+    "Tier Visible: violeta suave (#A78BFA), borde destacado en lista",
+    "Tier Básico: estilo neutro por defecto",
+    "Mapa: tiles CartoDB Dark via Leaflet 1.9.4",
+    "IA recomendados: sort por (peso_tier × 1000 - distancia_metros)",
+    "Popup: se respeta delay_ms y no se muestra dos veces con el mismo id+version"
+  ],
+  "kconfig_schema": [
+    {
+      "panel": "Identidad visual",
+      "campos": [
+        { "nombre": "nombre",      "label": "Nombre del direktorio",  "tipo": "texto",  "placeholder": "RadarNocturno" },
+        { "nombre": "tagline",     "label": "Tagline del hero",        "tipo": "texto" },
+        { "nombre": "logo_url",    "label": "Logo",                    "tipo": "imagen" },
+        { "nombre": "favicon_url", "label": "Favicon",                 "tipo": "imagen" },
+        { "nombre": "accent",      "label": "Color primario",          "tipo": "color",  "placeholder": "#FF3EA5" },
+        { "nombre": "accent2",     "label": "Color secundario",        "tipo": "color",  "placeholder": "#cc2d82" },
+        { "nombre": "fuente_head", "label": "Fuente para títulos",     "tipo": "fuente" }
+      ]
+    },
+    {
+      "panel": "Hero y localización",
+      "campos": [
+        { "nombre": "hero_titulo",    "label": "Título del Hero", "tipo": "texto" },
+        { "nombre": "hero_subtitulo", "label": "Subtítulo",       "tipo": "texto" },
+        { "nombre": "ciudad",         "label": "Ciudad principal", "tipo": "texto", "placeholder": "Antofagasta" },
+        { "nombre": "region",         "label": "Región",           "tipo": "texto", "placeholder": "Antofagasta" }
+      ]
+    },
+    {
+      "panel": "Mapa",
+      "campos": [
+        {
+          "nombre": "map_centro",
+          "label": "Centro del mapa (coordenadas)",
+          "tipo": "objeto_simple",
+          "campos_item": [
+            { "nombre": "lat", "label": "Latitud",  "tipo": "texto", "placeholder": "-23.6509" },
+            { "nombre": "lng", "label": "Longitud", "tipo": "texto", "placeholder": "-70.3975" }
+          ]
+        },
+        { "nombre": "map_zoom", "label": "Zoom inicial del mapa", "tipo": "texto", "placeholder": "14", "hint": "Rango sugerido: 12 (ciudad) — 16 (barrio)." }
+      ]
+    },
+    {
+      "panel": "Categorías",
+      "campos": [
+        {
+          "nombre": "categorias",
+          "label": "Categorías del direktorio",
+          "tipo": "array_objetos",
+          "hint": "Cada categoría tiene un ID único (slug), un nombre visible y un emoji de icono.",
+          "campos_item": [
+            { "nombre": "id",     "label": "ID (slug)",      "tipo": "texto", "placeholder": "bar" },
+            { "nombre": "nombre", "label": "Nombre visible", "tipo": "texto", "placeholder": "Bares" },
+            { "nombre": "icono",  "label": "Icono (emoji)",  "tipo": "texto", "placeholder": "🍺" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel": "Redes sociales",
+      "campos": [
+        {
+          "nombre": "redes",
+          "label": "Redes sociales",
+          "tipo": "objeto_simple",
+          "campos_item": [
+            { "nombre": "instagram", "label": "Instagram URL", "tipo": "texto" },
+            { "nombre": "facebook",  "label": "Facebook URL",  "tipo": "texto" },
+            { "nombre": "tiktok",    "label": "TikTok URL",    "tipo": "texto" },
+            { "nombre": "twitter",   "label": "Twitter/X URL", "tipo": "texto" }
+          ]
+        }
+      ]
+    }
+  ]
+}

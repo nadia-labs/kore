@@ -1,0 +1,121 @@
+{
+  "id": "korporativo",
+  "nombre": "Klik Korporativo",
+  "version": "1.0",
+  "autor": "nadIA Labs",
+  "descripcion": "Frontend PWA para sitios corporativos e institucionales. Hero configurable, servicios, nosotros, noticias y contacto. Totalmente personalizable vía kconfig.json.",
+  "kore_min": "1.0",
+  "endpoints": ["/api/config/klik", "/api/banners", "/api/noticias", "/api/popup"],
+  "kits": ["banners", "noticias", "popup"],
+  "kconfig_schema": [
+    {
+      "panel": "Identidad visual",
+      "campos": [
+        { "nombre": "nombre",      "label": "Nombre del sitio",          "tipo": "texto",  "placeholder": "Mi Empresa" },
+        { "nombre": "tagline",     "label": "Subtítulo / Tagline",        "tipo": "texto",  "placeholder": "Soluciones para tu negocio" },
+        { "nombre": "logo_url",    "label": "Logo",                       "tipo": "imagen", "hint": "Recomendado: 320 × 80 px, fondo transparente. WebP o PNG, máx. 200 KB." },
+        { "nombre": "favicon_url", "label": "Favicon",                    "tipo": "imagen", "hint": "Recomendado: 32 × 32 px. ICO, PNG o WebP, máx. 20 KB." },
+        { "nombre": "accent",      "label": "Color primario",             "tipo": "color",  "placeholder": "#6366f1" },
+        { "nombre": "accent2",     "label": "Color secundario",           "tipo": "color",  "placeholder": "#4f46e5" },
+        { "nombre": "fuente_head", "label": "Fuente para títulos",        "tipo": "fuente" },
+        { "nombre": "deco_text",   "label": "Texto decorativo del hero",  "tipo": "texto",  "placeholder": "Innovación · Calidad · Servicio", "hint": "Texto animado que se desplaza horizontalmente en el hero." }
+      ]
+    },
+    {
+      "panel": "Hero",
+      "campos": [
+        { "nombre": "hero_titulo",         "label": "Título del Hero",         "tipo": "texto", "placeholder": "Soluciones digitales para tu empresa" },
+        { "nombre": "hero_subtitulo",      "label": "Subtítulo del Hero",      "tipo": "texto" },
+        { "nombre": "hero_cta_primario",   "label": "Botón primario (texto)",  "tipo": "texto", "placeholder": "Contáctanos" },
+        { "nombre": "hero_cta_secundario", "label": "Botón secundario (texto)","tipo": "texto", "placeholder": "Ver servicios" }
+      ]
+    },
+    {
+      "panel": "Propuesta de valor",
+      "campos": [
+        {
+          "nombre": "propuesta",
+          "label": "Propuesta de valor",
+          "tipo": "array_objetos",
+          "hint": "Máximo 4 ítems recomendados.",
+          "campos_item": [
+            { "nombre": "icono",  "label": "Icono (emoji)", "tipo": "texto", "placeholder": "⚡" },
+            { "nombre": "titulo", "label": "Título",        "tipo": "texto" },
+            { "nombre": "texto",  "label": "Descripción",   "tipo": "texto" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel": "Servicios",
+      "campos": [
+        {
+          "nombre": "servicios",
+          "label": "Servicios",
+          "tipo": "array_objetos",
+          "campos_item": [
+            { "nombre": "titulo", "label": "Nombre del servicio", "tipo": "texto" },
+            { "nombre": "texto",  "label": "Descripción",         "tipo": "texto" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel": "Nosotros",
+      "campos": [
+        { "nombre": "nosotros_titulo",   "label": "Título sección Nosotros", "tipo": "texto" },
+        { "nombre": "nosotros_texto",    "label": "Texto descriptivo",       "tipo": "textarea" },
+        { "nombre": "nosotros_foto_url", "label": "Foto del equipo",         "tipo": "imagen" },
+        {
+          "nombre": "nosotros_stats",
+          "label": "Estadísticas",
+          "tipo": "array_objetos",
+          "campos_item": [
+            { "nombre": "valor", "label": "Valor (ej: 10+)", "tipo": "texto" },
+            { "nombre": "label", "label": "Etiqueta (ej: Años)", "tipo": "texto" }
+          ]
+        }
+      ]
+    },
+    {
+      "panel": "Secciones visibles",
+      "campos": [
+        {
+          "nombre": "secciones",
+          "label": "Secciones activas en la navegación",
+          "tipo": "secciones_toggle",
+          "opciones": ["inicio", "servicios", "nosotros", "noticias", "contacto"]
+        }
+      ]
+    },
+    {
+      "panel": "Contacto y redes",
+      "campos": [
+        { "nombre": "contacto",       "label": "Email o teléfono de contacto", "tipo": "texto" },
+        { "nombre": "ciudad",         "label": "Ciudad",                        "tipo": "texto" },
+        {
+          "nombre": "forma_contacto",
+          "label": "Método de envío del formulario",
+          "tipo": "select",
+          "opciones": [
+            { "valor": "mailto",    "label": "Mailto (email directo)" },
+            { "valor": "web3forms", "label": "Web3Forms" },
+            { "valor": "motor",     "label": "Motor Kore" }
+          ]
+        },
+        { "nombre": "web3forms_key", "label": "Clave Web3Forms", "tipo": "texto", "placeholder": "Solo si usas Web3Forms" },
+        {
+          "nombre": "redes",
+          "label": "Redes sociales",
+          "tipo": "objeto_simple",
+          "campos_item": [
+            { "nombre": "instagram", "label": "Instagram URL", "tipo": "texto" },
+            { "nombre": "facebook",  "label": "Facebook URL",  "tipo": "texto" },
+            { "nombre": "twitter",   "label": "Twitter/X URL", "tipo": "texto" },
+            { "nombre": "linkedin",  "label": "LinkedIn URL",  "tipo": "texto" }
+          ]
+        }
+      ]
+    }
+  ]
+}

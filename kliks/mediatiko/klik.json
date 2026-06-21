@@ -1,0 +1,76 @@
+{
+  "id": "mediatiko",
+  "nombre": "Mediatiko",
+  "version": "1.2",
+  "autor": "nadIA Labs",
+  "descripcion": "Klik editorial premium para medios de noticias. Incluye secciones, artículo con embed YouTube, buscador, kShare, cookies, push y popup PWA. Logo TL Antofagasta embebido como SVG inline.",
+  "kore_min": "1.0",
+  "endpoints": [
+    "/api/noticias",
+    "/api/banners",
+    "/api/config/klik",
+    "/api/push/vapid-public",
+    "/api/push/suscribir",
+    "/api/analytics/pageview"
+  ],
+  "kits": ["banners", "popup", "noticias"],
+  "secciones": ["Última Hora","Antofagasta","Región","Chile","Mundo","Deportes","Cultura"],
+  "campo_extra_noticias": {
+    "id": "youtube_id",
+    "label": "ID de video YouTube (La Caja)",
+    "tipo": "texto",
+    "placeholder": "ej: dQw4w9WgXcQ",
+    "ayuda": "Solo el ID del video, no la URL completa. Aparece antes del texto de la nota."
+  },
+  "logo_svg_fallback": true,
+  "notas_version": {
+    "1.2": "Logo TL Antofagasta embebido como SVG inline. Se oculta automáticamente si kconfig.logo_url está configurado.",
+    "1.1": "Secciones/categorías en formulario de noticias. Procesador Comunicados IA en kAdmin.",
+    "1.0": "Release inicial."
+  },
+  "kconfig_schema": [
+    {
+      "panel": "Identidad visual",
+      "campos": [
+        { "nombre": "nombre",      "label": "Nombre del sitio público", "tipo": "texto",    "placeholder": "Timeline Antofagasta",                "hint": "Aparece en el header del Klik y en el título del navegador." },
+        { "nombre": "tagline",     "label": "Subtítulo / Tagline",       "tipo": "texto",    "placeholder": "Noticias de Antofagasta y la Región" },
+        { "nombre": "logo_url",    "label": "Logo del sitio",            "tipo": "imagen",   "hint": "Recomendado: 320 × 80 px, fondo transparente, WebP o PNG. Máx. 200 KB." },
+        { "nombre": "favicon_url", "label": "Favicon",                   "tipo": "imagen",   "hint": "Recomendado: 32 × 32 px. ICO, PNG o WebP. Máx. 20 KB." },
+        { "nombre": "descripcion", "label": "Descripción SEO",           "tipo": "textarea", "placeholder": "Descripción para motores de búsqueda (máx. 155 caracteres)" }
+      ]
+    },
+    {
+      "panel": "Color de acento",
+      "campos": [
+        { "nombre": "accent",  "label": "Color primario",   "tipo": "color", "placeholder": "#00BFFF" },
+        { "nombre": "accent2", "label": "Color secundario", "tipo": "color", "placeholder": "#0099CC" }
+      ]
+    },
+    {
+      "panel": "Secciones del sitio",
+      "campos": [
+        {
+          "nombre": "secciones",
+          "label": "Secciones del sitio",
+          "tipo": "lista_chips",
+          "placeholder": "Nueva sección…",
+          "default": ["Última Hora","Antofagasta","Región","Chile","Mundo","Deportes","Cultura"],
+          "hint": "Arrastrá para reordenar. Click en el texto para editar. El orden aquí es el orden en la navegación."
+        },
+        {
+          "nombre": "evitar_duplicados_home",
+          "label": "Evitar noticias repetidas en el Home",
+          "tipo": "boolean",
+          "hint": "Si se activa, una noticia que ya apareció en portada no volverá a aparecer en las secciones inferiores."
+        }
+      ]
+    },
+    {
+      "panel": "YouTube",
+      "campos": [
+        { "nombre": "youtube_embed_global", "label": "Código Embed YouTube (Global para todas las noticias)", "tipo": "codigo",      "placeholder": "<iframe width=\"560\" height=\"315\" src=\"...\" frameborder=\"0\" allowfullscreen></iframe>", "hint": "Este video se mostrará automáticamente en TODAS las noticias publicadas." },
+        { "nombre": "youtube_ids",          "label": "Videos para la Portada (un link por línea)",           "tipo": "lista_texto", "placeholder": "https://www.youtube.com/watch?v=...\nhttps://youtu.be/...", "hint": "El primero es el principal, los siguientes van en la barra desplazable." }
+      ]
+    }
+  ]
+}

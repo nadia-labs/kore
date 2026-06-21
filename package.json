@@ -1,0 +1,41 @@
+{
+  "name": "kore-app",
+  "version": "2.0.0",
+  "description": "Kore App — Web App PWA Framework by nadIA Labs",
+  "main": "server.js",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "backup": "node backup.js",
+    "lint": "eslint server.js backup.js",
+    "lint:fix": "eslint --fix server.js backup.js",
+    "format": "prettier --write \"**/*.{js,json,html,css,md}\" --ignore-path .gitignore"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.16",
+    "bcrypt": "^5.1.0",
+    "better-sqlite3": "^9.0.0",
+    "cookie-session": "^2.1.0",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.0",
+    "multer": "1.4.5-lts.1",
+    "sharp": "^0.33.0"
+  },
+  "keywords": [
+    "kore",
+    "pwa",
+    "framework",
+    "nadia"
+  ],
+  "author": "nadIA Labs <hola@nadia.cl>",
+  "license": "UNLICENSED",
+  "private": true,
+  "devDependencies": {
+    "eslint": "^9.39.4",
+    "prettier": "^3.8.4"
+  }
+}

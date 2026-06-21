@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acceder — kAdmin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      font-size: 14px;
+      background: #f0f0f1;
+      color: #1d2327;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Logo ── */
+    .k-login-logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .k-logo-mark {
+      width: 48px; height: 48px;
+      background: #1d2327;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+    .k-logo-mark svg { width: 26px; height: 26px; fill: #fff; }
+    .k-login-logo h1 {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #1d2327;
+      letter-spacing: -0.3px;
+    }
+    .k-login-logo p {
+      font-size: 13px;
+      color: #50575e;
+      margin-top: 4px;
+    }
+
+    /* ── Card ── */
+    .k-login-card {
+      background: #fff;
+      border: 1px solid #c3c4c7;
+      border-radius: 8px;
+      padding: 26px 28px 24px;
+      width: 100%;
+      max-width: 340px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    /* ── Campos ── */
+    .k-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 16px;
+    }
+    .k-field:last-of-type { margin-bottom: 0; }
+
+    .k-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1d2327;
+    }
+
+    .k-input {
+      padding: 9px 12px;
+      border: 1px solid #c3c4c7;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 14px;
+      color: #1d2327;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      width: 100%;
+    }
+    .k-input:focus {
+      border-color: #2271b1;
+      box-shadow: 0 0 0 2px rgba(34,113,177,0.15);
+    }
+
+    /* ── Botón ── */
+    .k-btn-submit {
+      display: block;
+      width: 100%;
+      margin-top: 20px;
+      padding: 10px 16px;
+      background: #2271b1;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .k-btn-submit:hover { background: #135e96; }
+    .k-btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ── Error ── */
+    .k-error {
+      background: #fce8e8;
+      border: 1px solid #d63638;
+      border-radius: 4px;
+      color: #d63638;
+      font-size: 13px;
+      padding: 9px 12px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .k-error.is-visible { display: block; }
+
+    /* ── Footer ── */
+    .k-login-footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #8c8f94;
+    }
+    .k-login-footer a {
+      color: #2271b1;
+      text-decoration: none;
+    }
+    .k-login-footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div class="k-login-logo">
+    <div class="k-logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M5 3h3v7.5l6-7.5h4L11 11l7.5 10H14l-5.5-7.5-.5.6V21H5V3z"/></svg>
+    </div>
+    <h1>kAdmin</h1>
+    <p id="proyectoSubtitle">Kore Framework</p>
+  </div>
+
+  <div class="k-login-card">
+    <div class="k-error" id="k-error"></div>
+
+    <form id="loginForm" autocomplete="off">
+      <div class="k-field">
+        <label class="k-label" for="usuario">Usuario</label>
+        <input class="k-input" type="text" id="usuario" name="usuario"
+               autocomplete="username" autocorrect="off" autocapitalize="off"
+               spellcheck="false" autofocus required>
+      </div>
+      <div class="k-field">
+        <label class="k-label" for="clave">Contraseña</label>
+        <input class="k-input" type="password" id="clave" name="clave"
+               autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="k-btn-submit" id="submitBtn">Acceder</button>
+    </form>
+  </div>
+
+  <div class="k-login-footer">
+    <span>KORE 2.0</span> &nbsp;·&nbsp; <a href="https://nadia.cl" target="_blank" rel="noopener">nadIA Labs</a>
+  </div>
+
+<script>
+(function () {
+  'use strict';
+
+  const form      = document.getElementById('loginForm');
+  const errorEl   = document.getElementById('k-error');
+  const submitBtn = document.getElementById('submitBtn');
+
+  // Mostrar nombre del proyecto en el subtitle si está disponible
+  fetch('/api/config/klik')
+    .then(r => r.json())
+    .then(d => {
+      if (d.nombre) document.getElementById('proyectoSubtitle').textContent = d.nombre;
+    })
+    .catch(() => {});
+
+  function showError(msg) {
+    errorEl.textContent = msg;
+    errorEl.classList.add('is-visible');
+  }
+  function hideError() { errorEl.classList.remove('is-visible'); }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideError();
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Verificando…';
+
+    const usuario = document.getElementById('usuario').value.trim();
+    const clave   = document.getElementById('clave').value;
+
+    if (!usuario || !clave) {
+      showError('Completa todos los campos.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Acceder';
+      return;
+    }
+
+    try {
+      const res  = await fetch('/admin/login', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usuario, clave })
+      });
+      const data = await res.json();
+
+      if (res.ok && data.ok) {
+        location.replace('/admin');
+      } else {
+        showError(data.error || 'Credenciales inválidas.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Acceder';
+        document.getElementById('clave').value = '';
+        document.getElementById('clave').focus();
+      }
+    } catch {
+      showError('Error de conexión. Intenta de nuevo.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Acceder';
+    }
+  });
+})();
+</script>
+</body>
+</html>

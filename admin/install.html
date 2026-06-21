@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instalar Kore</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      font-size: 14px;
+      background: #f0f0f1;
+      color: #1d2327;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 40px 20px 60px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Logo ── */
+    .k-install-logo {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .k-logo-mark {
+      width: 52px; height: 52px;
+      background: #1d2327;
+      border-radius: 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .k-logo-mark svg { width: 28px; height: 28px; fill: #fff; }
+    .k-install-logo h1 {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #1d2327;
+    }
+    .k-install-logo p {
+      font-size: 13px;
+      color: #50575e;
+      margin-top: 5px;
+    }
+
+    /* ── Pasos (breadcrumb) ── */
+    .k-steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 28px;
+      width: 100%;
+      max-width: 440px;
+    }
+    .k-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      position: relative;
+    }
+    .k-step::after {
+      content: '';
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: #c3c4c7;
+      z-index: 0;
+    }
+    .k-step:last-child::after { display: none; }
+    .k-step-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #c3c4c7;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+      transition: background 0.2s;
+    }
+    .k-step.is-active .k-step-num { background: #2271b1; }
+    .k-step.is-done   .k-step-num { background: #00a32a; }
+    .k-step.is-done   .k-step-num::before { content: '✓'; }
+    .k-step.is-done   .k-step-num .num { display: none; }
+    .k-step-label {
+      font-size: 11px;
+      color: #8c8f94;
+      margin-top: 5px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .k-step.is-active .k-step-label { color: #2271b1; font-weight: 600; }
+    .k-step.is-done   .k-step-label { color: #00a32a; }
+
+    /* ── Card ── */
+    .k-card {
+      background: #fff;
+      border: 1px solid #c3c4c7;
+      border-radius: 8px;
+      padding: 28px 30px;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    }
+    .k-card h2 {
+      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #1d2327;
+      margin-bottom: 6px;
+    }
+    .k-card p.k-subtitle {
+      font-size: 13px;
+      color: #50575e;
+      line-height: 1.55;
+      margin-bottom: 22px;
+    }
+
+    /* ── Campos ── */
+    .k-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 16px;
+    }
+    .k-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1d2327;
+    }
+    .k-label span {
+      font-weight: 400;
+      color: #8c8f94;
+      font-size: 12px;
+      margin-left: 4px;
+    }
+    .k-input, .k-select {
+      padding: 9px 12px;
+      border: 1px solid #c3c4c7;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 14px;
+      color: #1d2327;
+      background: #fff;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .k-input:focus, .k-select:focus {
+      border-color: #2271b1;
+      box-shadow: 0 0 0 2px rgba(34,113,177,0.15);
+    }
+    .k-hint {
+      font-size: 12px;
+      color: #8c8f94;
+      line-height: 1.4;
+    }
+    .k-hint strong { color: #50575e; }
+
+    /* ── Klik selector ── */
+    .k-klik-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .k-klik-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border: 2px solid #c3c4c7;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .k-klik-option:hover { border-color: #2271b1; background: #f0f6fc; }
+    .k-klik-option.is-selected { border-color: #2271b1; background: #f0f6fc; }
+    .k-klik-option input[type="radio"] { width: 16px; height: 16px; accent-color: #2271b1; flex-shrink: 0; }
+    .k-klik-info strong { display: block; font-size: 13px; font-weight: 600; }
+    .k-klik-info small  { font-size: 12px; color: #8c8f94; }
+
+    /* ── Fuerza de contraseña ── */
+    .k-pass-strength {
+      height: 3px;
+      border-radius: 2px;
+      background: #c3c4c7;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .k-pass-bar {
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s, background 0.3s;
+      border-radius: 2px;
+    }
+
+    /* ── Error ── */
+    .k-error {
+      background: #fce8e8;
+      border: 1px solid #d63638;
+      border-radius: 4px;
+      color: #d63638;
+      font-size: 13px;
+      padding: 9px 12px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .k-error.is-visible { display: block; }
+
+    /* ── Botones ── */
+    .k-btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+      justify-content: flex-end;
+    }
+    .k-btn {
+      padding: 9px 18px;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: background 0.15s, opacity 0.15s;
+    }
+    .k-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .k-btn-primary { background: #2271b1; color: #fff; }
+    .k-btn-primary:hover:not(:disabled) { background: #135e96; }
+    .k-btn-ghost {
+      background: transparent;
+      color: #50575e;
+      border: 1px solid #c3c4c7;
+    }
+    .k-btn-ghost:hover:not(:disabled) { border-color: #50575e; color: #1d2327; }
+    .k-btn-success { background: #00a32a; color: #fff; font-size: 15px; padding: 12px 28px; }
+    .k-btn-success:hover { background: #007a1f; }
+
+    /* ── Paso 4: éxito ── */
+    .k-success {
+      text-align: center;
+      padding: 10px 0 8px;
+    }
+    .k-success-icon {
+      width: 64px; height: 64px;
+      background: #00a32a;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+    .k-success-icon svg { width: 34px; height: 34px; fill: #fff; }
+    .k-success h2 {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+    .k-success p {
+      color: #50575e;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 6px;
+    }
+    .k-success-url {
+      display: inline-block;
+      margin: 14px 0 20px;
+      padding: 8px 16px;
+      background: #f0f6fc;
+      border: 1px solid #c3c4c7;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #2271b1;
+      font-family: monospace;
+    }
+
+    /* ── Spinner ── */
+    .k-spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Separador ── */
+    .k-sep {
+      border: none;
+      border-top: 1px solid #f0f0f1;
+      margin: 18px 0;
+    }
+
+    /* ── Footer ── */
+    .k-footer {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 12px;
+      color: #8c8f94;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="k-install-logo">
+    <div class="k-logo-mark">
+      <svg viewBox="0 0 24 24"><path d="M5 3h3v7.5l6-7.5h4L11 11l7.5 10H14l-5.5-7.5-.5.6V21H5V3z"/></svg>
+    </div>
+    <h1>Instalar Kore</h1>
+    <p>Configuración inicial — sigue los pasos</p>
+  </div>
+
+  <!-- ── Indicador de pasos ── -->
+  <div class="k-steps" id="stepsBar">
+    <div class="k-step is-active" id="step-ind-1">
+      <div class="k-step-num"><span class="num">1</span></div>
+      <div class="k-step-label">Proyecto</div>
+    </div>
+    <div class="k-step" id="step-ind-2">
+      <div class="k-step-num"><span class="num">2</span></div>
+      <div class="k-step-label">Kapitán</div>
+    </div>
+    <div class="k-step" id="step-ind-3">
+      <div class="k-step-num"><span class="num">3</span></div>
+      <div class="k-step-label">IA + Klik</div>
+    </div>
+    <div class="k-step" id="step-ind-4">
+      <div class="k-step-num"><span class="num">4</span></div>
+      <div class="k-step-label">¡Listo!</div>
+    </div>
+  </div>
+
+  <!-- ══ PASO 1 — Proyecto ══ -->
+  <div class="k-card" id="step-1">
+    <h2>Información del proyecto</h2>
+    <p class="k-subtitle">Estos datos identifican tu sitio y se guardan en la configuración del Motor.</p>
+
+    <div class="k-error" id="err-1"></div>
+
+    <div class="k-field">
+      <label class="k-label" for="s1-nombre">Nombre del proyecto</label>
+      <input class="k-input" type="text" id="s1-nombre" placeholder="Mi Sitio Web" autocomplete="off">
+    </div>
+    <div class="k-field">
+      <label class="k-label" for="s1-url">URL pública <span>sin barra final</span></label>
+      <input class="k-input" type="url" id="s1-url" placeholder="https://misitio.cl" autocomplete="off">
+      <span class="k-hint">Dominio completo con https://. Se usa en los metadatos del sitio.</span>
+    </div>
+    <div class="k-field">
+      <label class="k-label" for="s1-puerto">Puerto del Motor <span>por defecto 3001</span></label>
+      <input class="k-input" type="number" id="s1-puerto" value="3001" min="1024" max="65535">
+    </div>
+
+    <div class="k-btn-row">
+      <button class="k-btn k-btn-primary" onclick="irA(2)">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- ══ PASO 2 — Cuenta Kapitán ══ -->
+  <div class="k-card" id="step-2" style="display:none">
+    <h2>Cuenta Kapitán</h2>
+    <p class="k-subtitle">El Kapitán es el superadministrador único de esta instalación de Kore. Elige una contraseña fuerte — no podrás recuperarla si la pierdes.</p>
+
+    <div class="k-error" id="err-2"></div>
+
+    <div class="k-field">
+      <label class="k-label" for="s2-usuario">Usuario</label>
+      <input class="k-input" type="text" id="s2-usuario" placeholder="admin"
+             autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <div class="k-field">
+      <label class="k-label" for="s2-clave">Contraseña</label>
+      <input class="k-input" type="password" id="s2-clave" placeholder="Mínimo 8 caracteres"
+             autocomplete="new-password" oninput="actualizarFuerza()">
+      <div class="k-pass-strength"><div class="k-pass-bar" id="passBar"></div></div>
+    </div>
+    <div class="k-field">
+      <label class="k-label" for="s2-clave2">Confirmar contraseña</label>
+      <input class="k-input" type="password" id="s2-clave2" placeholder="Repite la contraseña"
+             autocomplete="new-password">
+    </div>
+
+    <div class="k-btn-row">
+      <button class="k-btn k-btn-ghost" onclick="irA(1)">← Volver</button>
+      <button class="k-btn k-btn-primary" onclick="irA(3)">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- ══ PASO 3 — IA + Klik ══ -->
+  <div class="k-card" id="step-3" style="display:none">
+    <h2>Integración IA y Klik</h2>
+    <p class="k-subtitle">La IA es opcional pero recomendada. El Klik define qué tipo de sitio publicarás.</p>
+
+    <div class="k-error" id="err-3"></div>
+
+    <div class="k-field">
+      <label class="k-label" for="s3-apikey">Claude API Key <span>opcional</span></label>
+      <input class="k-input" type="password" id="s3-apikey" placeholder="sk-ant-api03-…"
+             autocomplete="off">
+      <span class="k-hint">Desde <strong>console.anthropic.com</strong>. Habilita Comunicados IA en el kAdmin. Puedes añadirla después.</span>
+    </div>
+
+    <div class="k-field">
+      <label class="k-label" for="s3-modelo">Modelo Claude</label>
+      <select class="k-select" id="s3-modelo">
+        <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 — rápido y económico (recomendado)</option>
+        <option value="claude-sonnet-4-6">Claude Sonnet 4.6 — más potente</option>
+      </select>
+    </div>
+
+    <hr class="k-sep">
+
+    <div class="k-field">
+      <label class="k-label">Klik a activar</label>
+      <div class="k-klik-list" id="klikList">
+        <div style="color:#8c8f94;font-size:13px;padding:8px 0">Cargando Kliks disponibles…</div>
+      </div>
+    </div>
+
+    <div class="k-btn-row">
+      <button class="k-btn k-btn-ghost" onclick="irA(2)">← Volver</button>
+      <button class="k-btn k-btn-primary" id="btnInstalar" onclick="instalar()">
+        Instalar Kore →
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ PASO 4 — Éxito ══ -->
+  <div class="k-card" id="step-4" style="display:none">
+    <div class="k-success">
+      <div class="k-success-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      </div>
+      <h2>¡Kore instalado!</h2>
+      <p>Tu sitio está configurado y el Motor está corriendo.</p>
+      <p>Accede a tu panel de administración:</p>
+      <div class="k-success-url" id="adminUrl">/admin/login</div>
+      <br>
+      <a id="btnIrAdmin" href="/admin/login">
+        <button class="k-btn k-btn-success">Ir al kAdmin →</button>
+      </a>
+      <p style="margin-top:18px;font-size:12px;color:#8c8f94">
+        El Motor se reiniciará en segundos con la nueva configuración.
+      </p>
+    </div>
+  </div>
+
+  <div class="k-footer">KORE 2.0 &nbsp;·&nbsp; nadIA Labs</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ── Estado del formulario
+  const D = {
+    nombre: '', url: '', puerto: 3001,
+    usuario: '', clave: '',
+    apikey: '', modelo: 'claude-haiku-4-5-20251001',
+    klikId: ''
+  };
+
+  let currentStep = 1;
+
+  // ── Navegación entre pasos ──────────────────────────
+  window.irA = function(num) {
+    if (num > currentStep && !validarPaso(currentStep)) return;
+    mostrarPaso(num);
+  };
+
+  function mostrarPaso(num) {
+    for (let i = 1; i <= 4; i++) {
+      document.getElementById(`step-${i}`).style.display = i === num ? '' : 'none';
+      const ind = document.getElementById(`step-ind-${i}`);
+      ind.className = 'k-step' +
+        (i < num  ? ' is-done'   : '') +
+        (i === num ? ' is-active' : '');
+    }
+    currentStep = num;
+    if (num === 3) cargarKliks();
+  }
+
+  // ── Validación por paso ─────────────────────────────
+  function mostrarError(step, msg) {
+    const el = document.getElementById(`err-${step}`);
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.add('is-visible');
+  }
+  function limpiarError(step) {
+    const el = document.getElementById(`err-${step}`);
+    if (el) el.classList.remove('is-visible');
+  }
+
+  function validarPaso(step) {
+    limpiarError(step);
+
+    if (step === 1) {
+      const nombre = document.getElementById('s1-nombre').value.trim();
+      const url    = document.getElementById('s1-url').value.trim();
+      const puerto = parseInt(document.getElementById('s1-puerto').value) || 3001;
+      if (!nombre) { mostrarError(1, 'El nombre del proyecto es obligatorio.'); return false; }
+      if (!url || !url.startsWith('http')) { mostrarError(1, 'La URL pública debe empezar con https://'); return false; }
+      D.nombre = nombre; D.url = url.replace(/\/$/, ''); D.puerto = puerto;
+      return true;
+    }
+
+    if (step === 2) {
+      const usuario = document.getElementById('s2-usuario').value.trim();
+      const clave   = document.getElementById('s2-clave').value;
+      const clave2  = document.getElementById('s2-clave2').value;
+      if (!usuario || usuario.length < 3) { mostrarError(2, 'El usuario debe tener al menos 3 caracteres.'); return false; }
+      if (clave.length < 8) { mostrarError(2, 'La contraseña debe tener al menos 8 caracteres.'); return false; }
+      if (clave !== clave2) { mostrarError(2, 'Las contraseñas no coinciden.'); return false; }
+      D.usuario = usuario; D.clave = clave;
+      return true;
+    }
+
+    if (step === 3) {
+      D.apikey  = document.getElementById('s3-apikey').value.trim();
+      D.modelo  = document.getElementById('s3-modelo').value;
+      D.klikId  = document.querySelector('input[name="klik"]:checked')?.value || '';
+      // Klik es opcional (puede configurarse después)
+      return true;
+    }
+
+    return true;
+  }
+
+  // ── Fuerza de contraseña ────────────────────────────
+  window.actualizarFuerza = function() {
+    const val = document.getElementById('s2-clave').value;
+    let score = 0;
+    if (val.length >= 8)  score++;
+    if (val.length >= 12) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const colors = ['#d63638','#dba617','#dba617','#00a32a','#00a32a'];
+    const bar = document.getElementById('passBar');
+    bar.style.width = (score / 5 * 100) + '%';
+    bar.style.background = colors[Math.min(score, 4)];
+  };
+
+  // ── Cargar Kliks disponibles ────────────────────────
+  async function cargarKliks() {
+    const list = document.getElementById('klikList');
+    try {
+      const res  = await fetch('/admin/api/setup/kliks');
+      const data = await res.json();
+      const kliks = data.kliks || [];
+
+      if (!kliks.length) {
+        list.innerHTML = '<div style="color:#8c8f94;font-size:13px;padding:8px 0">No hay Kliks disponibles aún. Puedes instalar uno desde el kAdmin después de la configuración.</div>';
+        return;
+      }
+
+      list.innerHTML = kliks.map((k, i) => `
+        <label class="k-klik-option ${i === 0 ? 'is-selected' : ''}" onclick="seleccionarKlik(this)">
+          <input type="radio" name="klik" value="${esc(k.id)}" ${i === 0 ? 'checked' : ''}>
+          <div class="k-klik-info">
+            <strong>${esc(k.nombre)}</strong>
+            <small>${esc(k.descripcion || k.id)}</small>
+          </div>
+        </label>
+      `).join('');
+
+      if (kliks.length > 0) D.klikId = kliks[0].id;
+    } catch {
+      list.innerHTML = '<div style="color:#8c8f94;font-size:13px;padding:8px 0">No se pudieron cargar los Kliks. Puedes instalar uno desde el kAdmin después.</div>';
+    }
+  }
+
+  window.seleccionarKlik = function(label) {
+    document.querySelectorAll('.k-klik-option').forEach(l => l.classList.remove('is-selected'));
+    label.classList.add('is-selected');
+  };
+
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── Instalación ─────────────────────────────────────
+  window.instalar = async function() {
+    if (!validarPaso(3)) return;
+
+    const btn = document.getElementById('btnInstalar');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="k-spinner"></span>Instalando…';
+
+    try {
+      const res = await fetch('/admin/api/setup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          proyecto_nombre: D.nombre,
+          proyecto_url:    D.url,
+          puerto:          D.puerto,
+          kapitan_usuario: D.usuario,
+          kapitan_clave:   D.clave,
+          claude_api_key:  D.apikey,
+          claude_modelo:   D.modelo,
+          klik_id:         D.klikId
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.ok) {
+        // Mostrar paso de éxito
+        const adminUrl = (D.url || '') + '/admin/login';
+        document.getElementById('adminUrl').textContent = adminUrl;
+        document.getElementById('btnIrAdmin').href = '/admin/login';
+        mostrarPaso(4);
+
+        // El Motor se reinicia solo — redirigir después de 6 segundos
+        setTimeout(() => { location.href = '/admin/login'; }, 6000);
+      } else {
+        mostrarError(3, data.error || 'Error durante la instalación. Revisa los logs del Motor.');
+        btn.disabled = false;
+        btn.innerHTML = 'Instalar Kore →';
+      }
+    } catch {
+      mostrarError(3, 'Error de conexión. Verifica que el Motor esté corriendo.');
+      btn.disabled = false;
+      btn.innerHTML = 'Instalar Kore →';
+    }
+  };
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cargando…</title>
+  <meta name="description" content="">
+  <link rel="icon" id="k-favicon" href="" type="image/png">
+
+  <!-- PWA -->
+  <meta name="theme-color" content="#0c0c10">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <!-- Open Graph (base; el Motor completa con OG Proxy para noticias) -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_CL">
+  <meta id="og-title"       property="og:title"       content="">
+  <meta id="og-description" property="og:description" content="">
+  <meta id="og-image"       property="og:image"       content="">
+
+  <!-- Fuentes — Inter siempre; la heading viene de kconfig -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link id="k-font-link" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ══════════════════════════════════════════════
+       KORE kUI — Variables base (no modificar)
+       Solo --k-accent y --k-accent2 cambian por proyecto
+       ══════════════════════════════════════════════ */
+    :root {
+      /* Fondos */
+      --k-bg0:    #0c0c10;
+      --k-bg1:    #13131a;
+      --k-bg2:    #1c1c27;
+      --k-bg3:    #242432;
+      /* Bordes */
+      --k-border:  #2a2a3d;
+      --k-border2: #35354d;
+      /* Textos */
+      --k-text:    #e8e8f0;
+      --k-text2:   #9090aa;
+      --k-text3:   #55556a;
+      /* Semánticos */
+      --k-green:   #22c55e;
+      --k-red:     #ef4444;
+      --k-yellow:  #f59e0b;
+      /* Tipografías */
+      --k-sans:  'Inter', -apple-system, sans-serif;
+      --k-head:  'Space Grotesk', sans-serif;
+      /* Acento — se sobreescribe desde kconfig */
+      --k-accent:  #6366f1;
+      --k-accent2: #4f46e5;
+      /* Derivados */
+      --k-gradient: linear-gradient(135deg, var(--k-accent), var(--k-accent2));
+      --k-gradient-hover: linear-gradient(135deg, var(--k-accent2), var(--k-accent));
+      --k-shadow-accent: rgba(99, 102, 241, 0.25);
+      /* Layout */
+      --k-nav-h: 72px;
+      --k-max-w: 1200px;
+      --k-radius: 12px;
+      --k-radius-lg: 20px;
+      --k-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ── Reset ── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--k-sans);
+      background: var(--k-bg0);
+      color: var(--k-text);
+      line-height: 1.65;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      font-family: var(--k-head);
+      line-height: 1.2;
+      font-weight: 800;
+    }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+    img, svg { max-width: 100%; display: block; }
+    button { cursor: pointer; border: none; background: none; font-family: var(--k-sans); }
+
+    /* ── Loading screen ── */
+    #k-loading {
+      position: fixed; inset: 0; background: var(--k-bg0);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; transition: opacity 0.4s ease;
+    }
+    #k-loading.hidden { opacity: 0; pointer-events: none; }
+    .k-loader-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--k-accent); margin: 0 5px;
+      animation: kBounce 1.2s infinite ease-in-out;
+    }
+    .k-loader-dot:nth-child(2) { animation-delay: 0.2s; }
+    .k-loader-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes kBounce {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40%           { transform: scale(1);   opacity: 1;   }
+    }
+
+    /* ── Utilities ── */
+    .k-container { max-width: var(--k-max-w); margin: 0 auto; padding: 0 2rem; }
+    .k-section    { padding: 100px 0; }
+    .k-section-alt { background: var(--k-bg1); }
+
+    .k-gradient-text {
+      background: var(--k-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+    }
+    .k-label {
+      font-size: 0.8rem; font-weight: 700; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--k-accent);
+      display: block; margin-bottom: 0.75rem;
+    }
+    .k-h1 { font-size: clamp(2.4rem, 5vw, 4rem); letter-spacing: -0.02em; }
+    .k-h2 { font-size: clamp(1.9rem, 4vw, 3rem); letter-spacing: -0.01em; }
+    .k-h3 { font-size: clamp(1.15rem, 2vw, 1.4rem); font-weight: 700; }
+    .k-lead { font-size: 1.1rem; color: var(--k-text2); font-weight: 500; }
+    .k-body { color: var(--k-text2); }
+    .k-center { text-align: center; }
+
+    /* Botones */
+    .k-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 13px 28px; border-radius: var(--k-radius);
+      font-weight: 600; font-size: 0.95rem;
+      transition: var(--k-transition); cursor: pointer; border: none;
+    }
+    .k-btn-primary {
+      background: var(--k-gradient); color: #fff;
+      box-shadow: 0 4px 20px var(--k-shadow-accent);
+    }
+    .k-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px var(--k-shadow-accent); }
+    .k-btn-outline {
+      background: transparent; color: var(--k-accent);
+      border: 2px solid var(--k-accent);
+    }
+    .k-btn-outline:hover {
+      background: rgba(99,102,241,0.08); transform: translateY(-2px);
+    }
+    .k-btn-ghost {
+      background: transparent; color: var(--k-text);
+      border: 1px solid var(--k-border);
+    }
+    .k-btn-ghost:hover { border-color: var(--k-accent); color: var(--k-accent); }
+
+    /* Focus */
+    *:focus-visible { outline: 2px solid var(--k-accent); outline-offset: 3px; }
+
+    /* ── NAVBAR ── */
+    #k-nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--k-nav-h);
+      background: rgba(12, 12, 16, 0.85);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--k-border);
+      z-index: 1000;
+      display: flex; align-items: center;
+      transition: background 0.3s ease;
+    }
+    #k-nav.scrolled { background: rgba(12, 12, 16, 0.97); }
+    .k-nav-inner {
+      display: flex; justify-content: space-between; align-items: center;
+      width: 100%;
+    }
+    .k-nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--k-head); font-weight: 800; font-size: 1.3rem;
+    }
+    .k-nav-logo img { height: 44px; width: auto; object-fit: contain; }
+    .k-nav-logo span { color: var(--k-text); }
+    .k-nav-links {
+      display: flex; gap: 1.75rem; align-items: center;
+    }
+    .k-nav-links a {
+      font-size: 0.88rem; font-weight: 500; color: var(--k-text2);
+      transition: color 0.2s; position: relative;
+    }
+    .k-nav-links a::after {
+      content: ''; position: absolute; left: 0; bottom: -4px;
+      width: 0; height: 2px; background: var(--k-accent);
+      transition: width 0.3s ease;
+    }
+    .k-nav-links a:hover { color: var(--k-text); }
+    .k-nav-links a:hover::after { width: 100%; }
+    .k-hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      padding: 8px; background: none; border: none; cursor: pointer;
+    }
+    .k-hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--k-text); transition: 0.3s ease;
+      border-radius: 2px;
+    }
+    .k-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .k-hamburger.open span:nth-child(2) { opacity: 0; }
+    .k-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    @media (max-width: 960px) {
+      .k-hamburger { display: flex; }
+      .k-nav-links {
+        position: fixed; top: var(--k-nav-h); left: 0; right: 0;
+        bottom: 0; background: var(--k-bg0);
+        flex-direction: column; justify-content: center;
+        gap: 2.5rem; transform: translateX(-100%);
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .k-nav-links.open { transform: translateX(0); }
+      .k-nav-links a { font-size: 1.25rem; color: var(--k-text); }
+    }
+
+    /* ── HERO ── */
+    #k-hero {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding-top: var(--k-nav-h);
+      position: relative; overflow: hidden;
+    }
+    .k-hero-bg {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 70% 15%, color-mix(in srgb, var(--k-accent) 15%, transparent) 0%, transparent 55%),
+        radial-gradient(ellipse at 20% 80%, color-mix(in srgb, var(--k-accent2) 10%, transparent) 0%, transparent 50%);
+      animation: kHeroPulse 12s ease-in-out infinite alternate;
+    }
+    @keyframes kHeroPulse {
+      from { opacity: 0.7; }
+      to   { opacity: 1; }
+    }
+    .k-hero-content {
+      position: relative; z-index: 2;
+      max-width: 820px; text-align: center;
+    }
+    .k-hero-btns {
+      display: flex; gap: 1rem; justify-content: center;
+      margin-top: 2.25rem; flex-wrap: wrap;
+    }
+    /* Texto decorativo flotante */
+    .k-deco-text {
+      position: absolute; bottom: 40px; left: 0;
+      width: 100%; overflow: hidden; white-space: nowrap;
+      pointer-events: none; user-select: none; z-index: 1;
+    }
+    .k-deco-inner {
+      display: inline-block;
+      font-family: var(--k-head); font-size: clamp(1.8rem, 4vw, 3.5rem);
+      font-weight: 800; color: transparent;
+      -webkit-text-stroke: 1px var(--k-border2);
+      animation: kDeco 35s linear infinite;
+      opacity: 0.5;
+    }
+    @keyframes kDeco {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ── PROPUESTA ── */
+    .k-value-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.75rem;
+    }
+    .k-value-card {
+      background: var(--k-bg0);
+      border: 1px solid var(--k-border);
+      border-radius: var(--k-radius-lg);
+      padding: 2.5rem;
+      position: relative; overflow: hidden;
+      transition: var(--k-transition);
+    }
+    .k-value-card::before {
+      content: '';
+      position: absolute; inset: 0; border-radius: var(--k-radius-lg);
+      padding: 1px;
+      background: var(--k-gradient);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      opacity: 0; transition: opacity 0.3s ease;
+    }
+    .k-value-card:hover::before { opacity: 1; }
+    .k-value-card:hover { transform: translateY(-5px); }
+    .k-value-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--k-accent) 12%, transparent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin-bottom: 1.5rem;
+    }
+
+    /* ── SERVICIOS ── */
+    .k-services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    @media (max-width: 1024px) { .k-services-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px)  { .k-services-grid { grid-template-columns: 1fr; } }
+
+    .k-service-card {
+      background: var(--k-bg1); border: 1px solid var(--k-border);
+      border-radius: var(--k-radius); padding: 2rem;
+      transition: var(--k-transition); position: relative; overflow: hidden;
+    }
+    .k-service-card::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 100%; height: 3px; background: var(--k-gradient);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.35s ease;
+    }
+    .k-service-card:hover::after { transform: scaleX(1); }
+    .k-service-card:hover { border-color: var(--k-border2); transform: translateY(-4px); }
+    .k-service-num {
+      font-family: var(--k-head); font-size: 0.75rem; font-weight: 800;
+      color: var(--k-accent); letter-spacing: 0.1em; margin-bottom: 1rem;
+    }
+
+    /* ── BANNERS ── */
+    #k-banners-section { padding: 56px 0; background: var(--k-bg0); }
+    .k-banners-track {
+      display: flex; gap: 1.25rem;
+      justify-content: center; flex-wrap: wrap;
+    }
+    .k-banner-item {
+      width: 210px; height: 210px; border-radius: var(--k-radius);
+      overflow: hidden; border: 1px solid var(--k-border);
+      background: var(--k-bg1);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      flex-shrink: 0;
+    }
+    .k-banner-item:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
+    .k-banner-item img { width: 100%; height: 100%; object-fit: cover; }
+    @media (max-width: 640px) { .k-banner-item { width: 155px; height: 155px; } }
+
+    /* ── NOSOTROS ── */
+    .k-about-layout {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 5rem; align-items: center;
+      margin-top: 3rem;
+    }
+    @media (max-width: 768px) { .k-about-layout { grid-template-columns: 1fr; gap: 3rem; } }
+    .k-about-img-wrap {
+      border-radius: var(--k-radius-lg); overflow: hidden;
+      aspect-ratio: 4/3; background: var(--k-bg2);
+      border: 1px solid var(--k-border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--k-text3); font-size: 3rem;
+    }
+    .k-about-img-wrap img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .k-stats-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem; margin-top: 2.5rem;
+    }
+    @media (max-width: 480px) { .k-stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    .k-stat {
+      text-align: center; padding: 1.5rem 1rem;
+      background: var(--k-bg1); border: 1px solid var(--k-border);
+      border-radius: var(--k-radius);
+    }
+    .k-stat-val {
+      font-family: var(--k-head); font-size: 2rem; font-weight: 800;
+      color: var(--k-accent); display: block;
+    }
+    .k-stat-label { font-size: 0.82rem; color: var(--k-text2); margin-top: 0.25rem; }
+
+    /* ── NOTICIAS ── */
+    #k-noticias-section { padding: 100px 0; }
+    .k-noticias-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.75rem; margin-top: 3rem;
+    }
+    .k-noticia-card {
+      background: var(--k-bg1); border: 1px solid var(--k-border);
+      border-radius: var(--k-radius-lg); overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+      cursor: pointer;
+    }
+    .k-noticia-card:hover {
+      transform: translateY(-5px);
+      border-color: color-mix(in srgb, var(--k-accent) 40%, transparent);
+    }
+    .k-noticia-img {
+      width: 100%; height: 190px; object-fit: cover;
+    }
+    .k-noticia-img-placeholder {
+      width: 100%; height: 190px;
+      background: linear-gradient(135deg,
+        color-mix(in srgb, var(--k-accent) 10%, transparent),
+        color-mix(in srgb, var(--k-accent2) 10%, transparent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem;
+    }
+    .k-noticia-body { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
+    .k-noticia-cat {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--k-accent); margin-bottom: 0.5rem;
+    }
+    .k-noticia-titulo {
+      font-family: var(--k-head); font-size: 1.1rem; font-weight: 700;
+      line-height: 1.35; margin-bottom: 0.65rem;
+    }
+    .k-noticia-bajada {
+      font-size: 0.88rem; color: var(--k-text2); line-height: 1.6;
+      flex: 1; margin-bottom: 1rem;
+    }
+    .k-noticia-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.78rem; color: var(--k-text3);
+      border-top: 1px solid var(--k-border); padding-top: 0.85rem;
+    }
+    .k-noticia-leer {
+      color: var(--k-accent); font-weight: 600; font-size: 0.82rem;
+      display: inline-flex; align-items: center; gap: 4px;
+      transition: gap 0.2s;
+    }
+    .k-noticia-leer:hover { gap: 8px; }
+
+    /* Vista lista completa de noticias */
+    .k-noticias-header {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 640px) {
+      .k-noticias-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    }
+    .k-back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--k-text2); font-size: 0.9rem; font-weight: 500;
+      transition: color 0.2s;
+    }
+    .k-back-btn:hover { color: var(--k-accent); }
+
+    /* Vista artículo */
+    .k-article-wrap { max-width: 740px; margin: 0 auto; }
+    .k-article-hero-img {
+      width: 100%; aspect-ratio: 16/9; object-fit: cover;
+      border-radius: var(--k-radius-lg); margin-bottom: 2.5rem;
+      border: 1px solid var(--k-border);
+    }
+    .k-article-meta {
+      display: flex; gap: 1rem; align-items: center;
+      font-size: 0.82rem; color: var(--k-text3); margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .k-article-cat {
+      color: var(--k-accent); font-weight: 700;
+      font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .k-article-body { color: var(--k-text); line-height: 1.8; }
+    .k-article-body p { margin-bottom: 1.25rem; }
+    .k-article-body h2 { margin: 2rem 0 1rem; font-size: 1.5rem; }
+    .k-article-body h3 { margin: 1.5rem 0 0.75rem; font-size: 1.2rem; }
+    .k-article-body img { border-radius: var(--k-radius); margin: 1.5rem 0; }
+    .k-article-body blockquote {
+      border-left: 3px solid var(--k-accent); padding-left: 1.5rem;
+      color: var(--k-text2); font-style: italic; margin: 1.5rem 0;
+    }
+    .k-kshare {
+      display: flex; gap: 0.75rem; flex-wrap: wrap;
+      margin-top: 3rem; padding-top: 2rem;
+      border-top: 1px solid var(--k-border);
+    }
+
+    /* ── CONTACTO ── */
+    .k-contact-layout {
+      display: grid; grid-template-columns: 1fr 1.2fr;
+      gap: 5rem; margin-top: 3rem;
+    }
+    @media (max-width: 768px) { .k-contact-layout { grid-template-columns: 1fr; gap: 3rem; } }
+    .k-contact-info { display: flex; flex-direction: column; gap: 2rem; }
+    .k-contact-item {
+      display: flex; gap: 1rem; align-items: flex-start;
+    }
+    .k-contact-icon {
+      width: 44px; height: 44px; flex-shrink: 0;
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--k-accent) 12%, transparent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .k-contact-label { font-size: 0.78rem; color: var(--k-text3); margin-bottom: 0.2rem; }
+    .k-contact-val { color: var(--k-text); font-weight: 500; }
+    .k-social-row { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
+    .k-social-btn {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--k-bg2); border: 1px solid var(--k-border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--k-text2); transition: var(--k-transition);
+    }
+    .k-social-btn:hover { background: var(--k-accent); color: #fff; border-color: var(--k-accent); transform: translateY(-2px); }
+
+    /* Formulario premium con floating labels */
+    .k-form-feedback {
+      padding: 12px 16px; border-radius: 8px;
+      font-size: 0.9rem; display: none; margin-top: 0.5rem;
+    }
+    .k-form-feedback.ok  { display: block; background: rgba(34,197,94,0.1); color: var(--k-green); border: 1px solid rgba(34,197,94,0.3); }
+    .k-form-feedback.err { display: block; background: rgba(239,68,68,0.1);  color: var(--k-red);   border: 1px solid rgba(239,68,68,0.3); }
+    .kf-field { position: relative; margin-bottom: 1.25rem; }
+    .kf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+    @media (max-width: 560px) { .kf-row { grid-template-columns: 1fr; } }
+    .kf-field input, .kf-field textarea {
+      width: 100%; display: block;
+      background: var(--k-bg2); border: 1.5px solid var(--k-border2);
+      border-radius: var(--k-radius); padding: 1.35rem 1rem 0.55rem;
+      font-family: var(--k-sans); font-size: 1rem; color: var(--k-text);
+      outline: none; resize: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .kf-field textarea { min-height: 130px; }
+    .kf-field input:focus, .kf-field textarea:focus {
+      border-color: var(--k-accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--k-accent) 12%, transparent);
+    }
+    .kf-field label {
+      position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+      font-size: 0.95rem; color: var(--k-text3); pointer-events: none;
+      transition: top 0.18s ease, font-size 0.18s ease, color 0.18s ease, transform 0.18s ease;
+      background: transparent;
+    }
+    .kf-field textarea ~ label { top: 1.2rem; transform: none; }
+    .kf-field input:focus ~ label,
+    .kf-field input:not(:placeholder-shown) ~ label { top: 0.42rem; transform: none; font-size: 0.72rem; color: var(--k-accent); }
+    .kf-field textarea:focus ~ label,
+    .kf-field textarea:not(:placeholder-shown) ~ label { top: 0.42rem; font-size: 0.72rem; color: var(--k-accent); }
+    .kf-field.has-error input, .kf-field.has-error textarea { border-color: var(--k-red); }
+    .kf-field.has-error label { color: var(--k-red) !important; }
+    .kf-err { font-size: 0.76rem; color: var(--k-red); margin-top: 0.3rem; display: none; padding-left: 0.25rem; }
+    .kf-field.has-error .kf-err { display: block; }
+    .kf-success {
+      text-align: center; padding: 3rem 1.5rem;
+      background: var(--k-bg1); border: 1px solid var(--k-border); border-radius: var(--k-radius-lg);
+    }
+    .kf-success-icon {
+      width: 64px; height: 64px; margin: 0 auto 1.25rem;
+      background: color-mix(in srgb, var(--k-green) 12%, transparent);
+      border: 2px solid var(--k-green); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 1.75rem;
+    }
+
+    /* ── FOOTER ── */
+    #k-footer {
+      background: #050508; padding: 80px 0 40px;
+      border-top: 1px solid var(--k-border);
+    }
+    .k-footer-grid {
+      display: grid; grid-template-columns: 2fr 1fr 1fr;
+      gap: 4rem; margin-bottom: 3rem;
+    }
+    @media (max-width: 768px) { .k-footer-grid { grid-template-columns: 1fr; gap: 2.5rem; } }
+    .k-footer-logo img { height: 44px; width: auto; object-fit: contain; margin-bottom: 1rem; }
+    .k-footer-logo-text {
+      font-family: var(--k-head); font-size: 1.3rem; font-weight: 800;
+      margin-bottom: 1rem; display: block;
+    }
+    .k-footer-tagline { color: var(--k-text2); max-width: 280px; font-size: 0.9rem; }
+    .k-footer-col-title { font-family: var(--k-head); font-size: 1rem; margin-bottom: 1.25rem; }
+    .k-footer-links li { margin-bottom: 0.65rem; }
+    .k-footer-links a { color: var(--k-text2); font-size: 0.9rem; transition: color 0.2s; }
+    .k-footer-links a:hover { color: var(--k-accent); }
+    .k-footer-bottom {
+      text-align: center; color: var(--k-text3); font-size: 0.82rem;
+      padding-top: 2rem; border-top: 1px solid var(--k-border);
+    }
+
+    /* ── POPUP ── */
+    #k-popup-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+      z-index: 2000; display: none; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    #k-popup-overlay.visible { display: flex; }
+    #k-popup-box {
+      background: var(--k-bg1); border: 1px solid var(--k-border2);
+      border-radius: var(--k-radius-lg); padding: 3rem 2.5rem;
+      width: 100%; max-width: 420px; text-align: center; position: relative;
+      animation: kPopIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes kPopIn { from { opacity:0; transform:scale(0.88); } to { opacity:1; transform:scale(1); } }
+    #k-popup-close {
+      position: absolute; top: 14px; right: 16px;
+      background: none; border: none; color: var(--k-text3);
+      font-size: 1.3rem; cursor: pointer; transition: color 0.2s;
+    }
+    #k-popup-close:hover { color: var(--k-text); }
+    #k-popup-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    #k-popup-titulo { font-family: var(--k-head); font-size: 1.5rem; margin-bottom: 0.75rem; }
+    #k-popup-mensaje { color: var(--k-text2); font-size: 0.95rem; margin-bottom: 1.5rem; }
+    #k-popup-cta {
+      display: inline-flex; padding: 11px 24px; border-radius: 8px;
+      background: var(--k-gradient); color: #fff; font-weight: 600;
+      font-size: 0.9rem; cursor: pointer; border: none; transition: opacity 0.2s;
+    }
+    #k-popup-cta:hover { opacity: 0.9; }
+
+    /* ── REVEAL ANIMATIONS ── */
+    .k-reveal {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+    }
+    .k-reveal.visible { opacity: 1; transform: translateY(0); }
+    .k-delay-1 { transition-delay: 0.1s; }
+    .k-delay-2 { transition-delay: 0.2s; }
+    .k-delay-3 { transition-delay: 0.3s; }
+
+    /* ── PAGE TRANSITIONS ── */
+    #k-app { min-height: calc(100vh - var(--k-nav-h)); }
+    .k-page { animation: kFadeIn 0.35s ease-out; }
+    @keyframes kFadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── EMPTY STATES ── */
+    .k-empty {
+      text-align: center; padding: 4rem 2rem;
+      color: var(--k-text3); font-size: 0.95rem;
+    }
+    .k-empty-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+
+    /* ── SCROLL BAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--k-bg0); }
+    ::-webkit-scrollbar-thumb { background: var(--k-border2); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--k-accent); }
+
+    /* ── HOME PAGE TOP PADDING ── */
+    .k-home-page { padding-top: 0; } /* hero ya maneja el padding */
+  </style>
+</head>
+
+<body>
+  <!-- ── Loading ── -->
+  <div id="k-loading">
+    <div style="display:flex;align-items:center;">
+      <div class="k-loader-dot"></div>
+      <div class="k-loader-dot"></div>
+      <div class="k-loader-dot"></div>
+    </div>
+  </div>
+
+  <!-- ── Popup ── -->
+  <div id="k-popup-overlay" role="dialog" aria-modal="true" aria-labelledby="k-popup-titulo">
+    <div id="k-popup-box">
+      <button id="k-popup-close" aria-label="Cerrar" onclick="cerrarPopup()">✕</button>
+      <div id="k-popup-icon"></div>
+      <h2 id="k-popup-titulo"></h2>
+      <p id="k-popup-mensaje"></p>
+      <button id="k-popup-cta" onclick="accionPopup()"></button>
+    </div>
+  </div>
+
+  <!-- ── Navbar ── -->
+  <header id="k-nav" role="banner">
+    <div class="k-container k-nav-inner">
+      <a href="/" class="k-nav-logo" id="k-nav-logo" onclick="navigate(event,'/')" aria-label="Inicio">
+        <img id="k-logo-img" src="" alt="" style="display:none">
+        <span id="k-logo-text"></span>
+      </a>
+      <nav>
+        <ul class="k-nav-links" id="k-nav-links" role="menubar">
+          <li><a href="/#inicio"     onclick="navScroll(event,'inicio')"     data-seccion="inicio">Inicio</a></li>
+          <li><a href="/#servicios"  onclick="navScroll(event,'servicios')"  data-seccion="servicios">Servicios</a></li>
+          <li><a href="/#nosotros"   onclick="navScroll(event,'nosotros')"   data-seccion="nosotros">Nosotros</a></li>
+          <li><a href="/noticias"    onclick="navigate(event,'/noticias')"   data-seccion="noticias" id="k-nav-noticias" style="display:none">Noticias</a></li>
+          <li><a href="/#contacto"   onclick="navScroll(event,'contacto')"   data-seccion="contacto">Contacto</a></li>
+        </ul>
+      </nav>
+      <button class="k-hamburger" id="k-hamburger" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ── App ── -->
+  <div id="k-app"></div>
+
+  <!-- ── Footer ── -->
+  <footer id="k-footer" style="display:none">
+    <div class="k-container">
+      <div class="k-footer-grid">
+        <div>
+          <div class="k-footer-logo" id="k-footer-logo-wrap">
+            <img id="k-footer-logo-img" src="" alt="" style="display:none">
+            <span class="k-footer-logo-text" id="k-footer-logo-text"></span>
+          </div>
+          <p class="k-footer-tagline" id="k-footer-tagline"></p>
+        </div>
+        <div>
+          <h4 class="k-footer-col-title">Navegación</h4>
+          <ul class="k-footer-links" id="k-footer-nav"></ul>
+        </div>
+        <div>
+          <h4 class="k-footer-col-title">Contacto</h4>
+          <ul class="k-footer-links" id="k-footer-contact"></ul>
+          <div class="k-social-row" id="k-footer-socials" style="margin-top:1.25rem"></div>
+        </div>
+      </div>
+      <div class="k-footer-bottom">
+        <span id="k-footer-copy"></span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+  'use strict';
+
+  /* ══════════════════════════════════════════════
+     KORE Klik Korporativo v1.0
+     nadIA Labs · 2026
+     ══════════════════════════════════════════════ */
+
+  // ── Config por defecto (fallback si la API falla) ─────────────────
+  const DEFAULT_CFG = {
+    nombre:          'Mi Empresa',
+    tagline:         'Descripción breve de la empresa.',
+    logo_url:        '',
+    favicon_url:     '',
+    accent:          '#6366f1',
+    accent2:         '#4f46e5',
+    fuente_head:     'Space Grotesk',
+    hero_titulo:     'Bienvenidos a nuestra empresa',
+    hero_subtitulo:  'Soluciones profesionales para tu organización.',
+    hero_cta_primario:   'Contáctanos',
+    hero_cta_secundario: 'Nuestros servicios',
+    propuesta: [
+      { icono: '⚡', titulo: 'Rapidez', texto: 'Respondemos y ejecutamos con agilidad.' },
+      { icono: '🎯', titulo: 'Precisión', texto: 'Cada proyecto, adaptado a tu realidad.' },
+      { icono: '📊', titulo: 'Resultados', texto: 'Métricas concretas que puedes mostrar.' }
+    ],
+    servicios: [
+      { titulo: 'Consultoría', texto: 'Asesoría estratégica para tu organización.' },
+      { titulo: 'Implementación', texto: 'Ponemos en marcha las soluciones.' },
+      { titulo: 'Capacitación', texto: 'Formamos a tu equipo.' }
+    ],
+    nosotros_titulo: 'Quiénes somos',
+    nosotros_texto:  'Somos una empresa comprometida con la excelencia y la innovación.',
+    nosotros_foto_url: '',
+    nosotros_stats:  [
+      { valor: '+10', label: 'Años de experiencia' },
+      { valor: '+100', label: 'Clientes atendidos' },
+      { valor: '3', label: 'Sedes' }
+    ],
+    secciones: {
+      inicio:    'Inicio',
+      servicios: 'Servicios',
+      nosotros:  'Nosotros',
+      noticias:  'Noticias',
+      contacto:  'Contacto'
+    },
+    redes: { instagram: '', facebook: '', twitter: '', linkedin: '' },
+    contacto:          'contacto@empresa.com',
+    ciudad:            'Chile',
+    forma_contacto:    'motor',
+    web3forms_key:     '',
+    deco_text:         'EMPRESA · SERVICIOS · CONTACTO · NOSOTROS · '
+  };
+
+  let CFG = { ...DEFAULT_CFG };
+  let _popupUrl = '';
+
+  // ── API helpers ───────────────────────────────────────────────────
+  async function apiFetch(url) {
+    try {
+      const r = await fetch(url);
+      if (!r.ok) return null;
+      return await r.json();
+    } catch { return null; }
+  }
+
+  async function apiConfig()         { return await apiFetch('/api/config/klik'); }
+  async function apiBanners()        { return await apiFetch('/api/banners'); }
+  async function apiNoticias(limit)  { return await apiFetch(`/api/noticias?limit=${limit || 100}`); }
+  async function apiNoticia(slug)    { return await apiFetch(`/api/noticias/${slug}`); }
+  async function apiPopup()          { return await apiFetch('/api/popup'); }
+
+  // ── Aplicar kconfig al DOM ────────────────────────────────────────
+  function applyConfig(cfg) {
+    // Variables CSS de acento
+    const root = document.documentElement;
+    root.style.setProperty('--k-accent',  cfg.accent  || DEFAULT_CFG.accent);
+    root.style.setProperty('--k-accent2', cfg.accent2 || DEFAULT_CFG.accent2);
+    root.style.setProperty('--k-gradient',
+      `linear-gradient(135deg, ${cfg.accent || DEFAULT_CFG.accent}, ${cfg.accent2 || DEFAULT_CFG.accent2})`);
+    root.style.setProperty('--k-gradient-hover',
+      `linear-gradient(135deg, ${cfg.accent2 || DEFAULT_CFG.accent2}, ${cfg.accent || DEFAULT_CFG.accent})`);
+    root.style.setProperty('--k-shadow-accent',
+      hexToRgba(cfg.accent || DEFAULT_CFG.accent, 0.25));
+
+    // Fuente de titulares
+    if (cfg.fuente_head && cfg.fuente_head !== 'Space Grotesk') {
+      const link = document.getElementById('k-font-link');
+      const fam  = encodeURIComponent(cfg.fuente_head);
+      link.href  = `https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=${fam}:wght@700;800&display=swap`;
+      root.style.setProperty('--k-head', `'${cfg.fuente_head}', sans-serif`);
+    }
+
+    // Meta tags
+    document.title = cfg.nombre || DEFAULT_CFG.nombre;
+    if (cfg.tagline) {
+      document.querySelector('meta[name="description"]').content = cfg.tagline;
+      document.getElementById('og-description').content = cfg.tagline;
+    }
+    document.getElementById('og-title').content = cfg.nombre || DEFAULT_CFG.nombre;
+
+    // Favicon
+    if (cfg.favicon_url) document.getElementById('k-favicon').href = cfg.favicon_url;
+
+    // OG image
+    if (cfg.logo_url) document.getElementById('og-image').content = cfg.logo_url;
+
+    // Navbar logo
+    const logoImg  = document.getElementById('k-logo-img');
+    const logoText = document.getElementById('k-logo-text');
+    if (cfg.logo_url) {
+      logoImg.src  = cfg.logo_url;
+      logoImg.alt  = cfg.nombre || '';
+      logoImg.style.display = '';
+      logoText.style.display = 'none';
+    } else {
+      logoText.textContent = cfg.nombre || DEFAULT_CFG.nombre;
+    }
+
+    // Navbar secciones — mostrar/ocultar + actualizar label
+    document.querySelectorAll('[data-seccion]').forEach(el => {
+      const sec = el.dataset.seccion;
+      if (sec === 'noticias') return; // noticias la gestiona initHome()
+      const li    = el.closest('li');
+      const label = cfg.secciones?.[sec];
+      if (label) {
+        el.textContent = label;
+        if (li) li.style.display = '';
+      } else if (cfg.secciones && !cfg.secciones[sec]) {
+        // sección activamente desactivada → ocultar en nav
+        if (li) li.style.display = 'none';
+      }
+    });
+
+    // Footer
+    const footerLogoImg  = document.getElementById('k-footer-logo-img');
+    const footerLogoText = document.getElementById('k-footer-logo-text');
+    if (cfg.logo_url) {
+      footerLogoImg.src = cfg.logo_url; footerLogoImg.alt = cfg.nombre || '';
+      footerLogoImg.style.display = '';
+      footerLogoText.style.display = 'none';
+    } else {
+      footerLogoText.textContent = cfg.nombre || DEFAULT_CFG.nombre;
+    }
+    const ftTagline = document.getElementById('k-footer-tagline');
+    if (ftTagline) ftTagline.textContent = cfg.tagline || '';
+
+    // Footer nav — respeta secciones activas (igual que top nav)
+    const secs = cfg.secciones || DEFAULT_CFG.secciones;
+    const ftNav = document.getElementById('k-footer-nav');
+    if (ftNav) {
+      const ftItems = [
+        secs.inicio    ? `<li><a href="/#inicio"    onclick="navScroll(event,'inicio')">${secs.inicio}</a></li>`       : '',
+        secs.servicios ? `<li><a href="/#servicios" onclick="navScroll(event,'servicios')">${secs.servicios}</a></li>` : '',
+        secs.nosotros  ? `<li><a href="/#nosotros"  onclick="navScroll(event,'nosotros')">${secs.nosotros}</a></li>`   : '',
+        secs.noticias  ? `<li><a href="/noticias"   onclick="navigate(event,'/noticias')">${secs.noticias}</a></li>`  : '',
+        secs.contacto  ? `<li><a href="/#contacto"  onclick="navScroll(event,'contacto')">${secs.contacto}</a></li>`  : '',
+      ];
+      ftNav.innerHTML = ftItems.join('');
+    }
+
+    // Footer contacto
+    const ftContact = document.getElementById('k-footer-contact');
+    if (ftContact) {
+      const email = cfg.contacto || DEFAULT_CFG.contacto;
+      const ciudad = cfg.ciudad  || DEFAULT_CFG.ciudad;
+      ftContact.innerHTML = `
+        <li><a href="mailto:${email}">${email}</a></li>
+        ${ciudad ? `<li style="color:var(--k-text3)">${ciudad}</li>` : ''}
+      `;
+    }
+
+    // Footer redes
+    const redes = cfg.redes || {};
+    const ftSocials = document.getElementById('k-footer-socials');
+    if (ftSocials) {
+      ftSocials.innerHTML = [
+        redes.linkedin   ? `<a href="${redes.linkedin}"   class="k-social-btn" target="_blank" rel="noopener" aria-label="LinkedIn">${SVG_LINKEDIN}</a>`   : '',
+        redes.instagram  ? `<a href="${redes.instagram}"  class="k-social-btn" target="_blank" rel="noopener" aria-label="Instagram">${SVG_INSTAGRAM}</a>`  : '',
+        redes.facebook   ? `<a href="${redes.facebook}"   class="k-social-btn" target="_blank" rel="noopener" aria-label="Facebook">${SVG_FACEBOOK}</a>`   : '',
+        redes.twitter    ? `<a href="${redes.twitter}"    class="k-social-btn" target="_blank" rel="noopener" aria-label="Twitter/X">${SVG_TWITTER}</a>`    : '',
+      ].join('');
+    }
+
+    // Footer copyright + branding Kore
+    const ftCopy = document.getElementById('k-footer-copy');
+    if (ftCopy) ftCopy.innerHTML = `© ${new Date().getFullYear()} ${cfg.nombre || ''}. Todos los derechos reservados. &nbsp;·&nbsp; <a href="https://kore.nadia.cl" target="_blank" rel="noopener" style="color:var(--k-text3);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--k-accent)'" onmouseout="this.style.color='var(--k-text3)'">Diseñado con Kore</a>`;
+
+    document.getElementById('k-footer').style.display = '';
+  }
+
+  // ── SVG íconos ────────────────────────────────────────────────────
+  const SVG_ARROW_R = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
+  const SVG_ARROW_L = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>`;
+  const SVG_LINKEDIN  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>`;
+  const SVG_INSTAGRAM = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>`;
+  const SVG_FACEBOOK  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>`;
+  const SVG_TWITTER   = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>`;
+  const SVG_SHARE     = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>`;
+
+  // ── Helpers ───────────────────────────────────────────────────────
+  function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1,3),16);
+    const g = parseInt(hex.slice(3,5),16);
+    const b = parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
+  function formatDate(str) {
+    if (!str) return '';
+    const d = new Date(str + (str.length === 10 ? 'T12:00:00' : ''));
+    return d.toLocaleDateString('es-CL', { year:'numeric', month:'long', day:'numeric' });
+  }
+
+  function truncate(str, n) {
+    if (!str) return '';
+    return str.length > n ? str.slice(0, n) + '…' : str;
+  }
+
+  function slugify(str) {
+    return (str||'').toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-');
+  }
+
+  // ── Scroll reveal ─────────────────────────────────────────────────
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('visible');
+      revealObs.unobserve(e.target);
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  function observeReveal() {
+    document.querySelectorAll('.k-reveal:not(.visible)').forEach(el => revealObs.observe(el));
+  }
+
+  // ── Navbar scroll effect ──────────────────────────────────────────
+  window.addEventListener('scroll', () => {
+    document.getElementById('k-nav').classList.toggle('scrolled', window.scrollY > 20);
+  }, { passive: true });
+
+  // ── Mobile menu ───────────────────────────────────────────────────
+  const hamburger = document.getElementById('k-hamburger');
+  const navLinks  = document.getElementById('k-nav-links');
+
+  hamburger.addEventListener('click', () => {
+    const open = !navLinks.classList.contains('open');
+    navLinks.classList.toggle('open', open);
+    hamburger.classList.toggle('open', open);
+    hamburger.setAttribute('aria-expanded', open);
+  });
+
+  function closeMenu() {
+    navLinks.classList.remove('open');
+    hamburger.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', false);
+  }
+
+  // ── Router ────────────────────────────────────────────────────────
+  function navigate(e, path) {
+    if (e) { e.preventDefault(); closeMenu(); }
+    if (window.location.pathname !== path) {
+      history.pushState({}, '', path);
+    }
+    router();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function navScroll(e, sectionId) {
+    e.preventDefault(); closeMenu();
+    if (window.location.pathname !== '/') {
+      history.pushState({}, '', '/');
+      router();
+      setTimeout(() => scrollToSection(sectionId), 400);
+    } else {
+      scrollToSection(sectionId);
+    }
+  }
+
+  function scrollToSection(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const offset = el.getBoundingClientRect().top + window.scrollY - 80;
+    window.scrollTo({ top: offset, behavior: 'smooth' });
+  }
+
+  window.addEventListener('popstate', () => router());
+
+  async function router() {
+    const path = window.location.pathname;
+    const app  = document.getElementById('k-app');
+
+    if (path === '/' || path === '') {
+      app.innerHTML = await renderHome();
+      initHome();
+    } else if (path === '/noticias') {
+      app.innerHTML = renderLoading();
+      const data = await apiNoticias(100);
+      app.innerHTML = renderListaNoticias(data);
+    } else if (path.startsWith('/noticia/')) {
+      const slug = path.split('/noticia/')[1];
+      app.innerHTML = renderLoading();
+      const noticia = await apiNoticia(slug);
+      app.innerHTML = renderArticulo(noticia);
+    } else {
+      app.innerHTML = render404();
+    }
+
+    observeReveal();
+  }
+
+  function renderLoading() {
+    return `<div style="display:flex;align-items:center;justify-content:center;min-height:60vh;">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div class="k-loader-dot"></div>
+        <div class="k-loader-dot"></div>
+        <div class="k-loader-dot"></div>
+      </div>
+    </div>`;
+  }
+
+  // ── VIEW: HOME ────────────────────────────────────────────────────
+  async function renderHome() {
+    const secs     = (CFG.secciones && Object.keys(CFG.secciones).length) ? CFG.secciones : DEFAULT_CFG.secciones;
+    const propuesta = (Array.isArray(CFG.propuesta) && CFG.propuesta.length)     ? CFG.propuesta    : DEFAULT_CFG.propuesta;
+    const servicios = (Array.isArray(CFG.servicios) && CFG.servicios.length)     ? CFG.servicios    : DEFAULT_CFG.servicios;
+    const stats     = (Array.isArray(CFG.nosotros_stats) && CFG.nosotros_stats.length) ? CFG.nosotros_stats : DEFAULT_CFG.nosotros_stats;
+    const deco      = (CFG.deco_text && CFG.deco_text.trim()) ? CFG.deco_text : DEFAULT_CFG.deco_text;
+    const decoDouble = deco.repeat(6);
+
+    const propuestaHTML = propuesta.map((p, i) => `
+      <div class="k-value-card k-reveal k-delay-${i%3}">
+        <div class="k-value-icon">${p.icono || '●'}</div>
+        <h3 class="k-h3" style="margin-bottom:0.75rem">${p.titulo}</h3>
+        <p class="k-body" style="font-size:0.95rem">${p.texto}</p>
+      </div>
+    `).join('');
+
+    const serviciosHTML = servicios.map((s, i) => `
+      <div class="k-service-card k-reveal k-delay-${i%3}">
+        <div class="k-service-num">0${i+1}</div>
+        <h3 class="k-h3" style="margin-bottom:0.75rem">${s.titulo}</h3>
+        <p class="k-body" style="font-size:0.92rem">${s.texto}</p>
+      </div>
+    `).join('');
+
+    const statsHTML = stats.map(st => `
+      <div class="k-stat k-reveal">
+        <span class="k-stat-val">${st.valor}</span>
+        <span class="k-stat-label">${st.label}</span>
+      </div>
+    `).join('');
+
+    const nosotrosFoto = CFG.nosotros_foto_url
+      ? `<img src="${CFG.nosotros_foto_url}" alt="${CFG.nosotros_titulo||'Nosotros'}" style="width:100%;height:100%;object-fit:cover">`
+      : `🏢`;
+
+    const redes = CFG.redes || {};
+    const redesHTML = [
+      redes.linkedin  ? `<a href="${redes.linkedin}"  class="k-social-btn" target="_blank" rel="noopener" aria-label="LinkedIn">${SVG_LINKEDIN}</a>`  : '',
+      redes.instagram ? `<a href="${redes.instagram}" class="k-social-btn" target="_blank" rel="noopener" aria-label="Instagram">${SVG_INSTAGRAM}</a>` : '',
+      redes.facebook  ? `<a href="${redes.facebook}"  class="k-social-btn" target="_blank" rel="noopener" aria-label="Facebook">${SVG_FACEBOOK}</a>`  : '',
+      redes.twitter   ? `<a href="${redes.twitter}"   class="k-social-btn" target="_blank" rel="noopener" aria-label="Twitter/X">${SVG_TWITTER}</a>`   : '',
+    ].join('');
+
+    return `<div class="k-home-page k-page">
+
+      <!-- HERO -->
+      <section id="inicio" class="k-hero-section" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding-top:var(--k-nav-h);position:relative;overflow:hidden;">
+        <div class="k-hero-bg"></div>
+        <div class="k-container" style="position:relative;z-index:2">
+          <div class="k-hero-content k-reveal" style="max-width:820px;margin:0 auto;text-align:center;padding:80px 0;">
+            <span class="k-label">${CFG.nombre || DEFAULT_CFG.nombre}</span>
+            <h1 class="k-h1" style="margin-bottom:1.5rem">
+              ${(CFG.hero_titulo || DEFAULT_CFG.hero_titulo).replace(/\*\*(.+?)\*\*/g, '<span class="k-gradient-text">$1</span>')}
+            </h1>
+            <p class="k-lead" style="max-width:620px;margin:0 auto 2.5rem">
+              ${CFG.hero_subtitulo || DEFAULT_CFG.hero_subtitulo}
+            </p>
+            <div class="k-hero-btns">
+              <a href="/#contacto" onclick="navScroll(event,'contacto')" class="k-btn k-btn-primary">
+                ${CFG.hero_cta_primario || DEFAULT_CFG.hero_cta_primario}
+              </a>
+              <a href="/#servicios" onclick="navScroll(event,'servicios')" class="k-btn k-btn-outline">
+                ${CFG.hero_cta_secundario || DEFAULT_CFG.hero_cta_secundario}
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="k-deco-text" aria-hidden="true">
+          <span class="k-deco-inner">${decoDouble}</span>
+        </div>
+      </section>
+
+      <!-- PROPUESTA DE VALOR -->
+      <section class="k-section k-section-alt">
+        <div class="k-container">
+          <div class="k-value-grid">${propuestaHTML}</div>
+        </div>
+      </section>
+
+      <!-- SERVICIOS -->
+      <section id="servicios" class="k-section">
+        <div class="k-container">
+          <div class="k-center k-reveal" style="margin-bottom:1rem">
+            <span class="k-label">${secs.servicios || 'Servicios'}</span>
+            <h2 class="k-h2" style="margin-bottom:1rem">Lo que hacemos</h2>
+            <p class="k-lead" style="max-width:560px;margin:0 auto">Soluciones adaptadas a la realidad de tu organización.</p>
+          </div>
+          <div class="k-services-grid">${serviciosHTML}</div>
+        </div>
+      </section>
+
+      <!-- BANNERS (dinámico) -->
+      <div id="k-banners-section" style="display:none">
+        <div id="k-banners-section-inner"></div>
+      </div>
+
+      <!-- NOSOTROS -->
+      <section id="nosotros" class="k-section k-section-alt">
+        <div class="k-container">
+          <div class="k-about-layout">
+            <div class="k-about-img-wrap k-reveal">
+              ${nosotrosFoto}
+            </div>
+            <div class="k-reveal k-delay-1">
+              <span class="k-label">${secs.nosotros || 'Nosotros'}</span>
+              <h2 class="k-h2" style="margin-bottom:1.25rem">${CFG.nosotros_titulo || DEFAULT_CFG.nosotros_titulo}</h2>
+              <p class="k-body" style="font-size:1rem;line-height:1.75">${CFG.nosotros_texto || DEFAULT_CFG.nosotros_texto}</p>
+              ${redesHTML ? `<div class="k-social-row" style="margin-top:2rem">${redesHTML}</div>` : ''}
+              <div class="k-stats-grid">${statsHTML}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- NOTICIAS PREVIEW (dinámico) -->
+      <section id="noticias" class="k-section" id="k-noticias-section" style="display:none">
+        <div class="k-container">
+          <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:3rem" class="k-reveal">
+            <div>
+              <span class="k-label">${secs.noticias || 'Noticias'}</span>
+              <h2 class="k-h2">Últimas noticias</h2>
+            </div>
+            <a href="/noticias" onclick="navigate(event,'/noticias')" class="k-btn k-btn-ghost" style="gap:8px">
+              Ver todas ${SVG_ARROW_R}
+            </a>
+          </div>
+          <div class="k-noticias-grid" id="k-noticias-preview"></div>
+        </div>
+      </section>
+
+      <!-- CONTACTO -->
+      <section id="contacto" class="k-section k-section-alt">
+        <div class="k-container">
+          <div class="k-center k-reveal" style="margin-bottom:1rem">
+            <span class="k-label">${secs.contacto || 'Contacto'}</span>
+            <h2 class="k-h2" style="margin-bottom:1rem">Hablemos</h2>
+            <p class="k-lead">Cuéntanos tu desafío y encontramos la solución.</p>
+          </div>
+          <div class="k-contact-layout">
+            <!-- Info -->
+            <div class="k-contact-info k-reveal">
+              <div class="k-contact-item">
+                <div class="k-contact-icon">✉️</div>
+                <div>
+                  <div class="k-contact-label">Email</div>
+                  <a href="mailto:${CFG.contacto||DEFAULT_CFG.contacto}" class="k-contact-val" style="transition:color 0.2s" onmouseover="this.style.color='var(--k-accent)'" onmouseout="this.style.color=''">
+                    ${CFG.contacto||DEFAULT_CFG.contacto}
+                  </a>
+                </div>
+              </div>
+              ${CFG.ciudad ? `<div class="k-contact-item">
+                <div class="k-contact-icon">📍</div>
+                <div>
+                  <div class="k-contact-label">Ubicación</div>
+                  <div class="k-contact-val">${CFG.ciudad}</div>
+                </div>
+              </div>` : ''}
+              ${redesHTML ? `<div class="k-contact-item">
+                <div class="k-contact-icon">🌐</div>
+                <div>
+                  <div class="k-contact-label">Redes sociales</div>
+                  <div class="k-social-row" style="margin-top:0.5rem">${redesHTML}</div>
+                </div>
+              </div>` : ''}
+            </div>
+            <!-- Formulario -->
+            <div class="k-reveal k-delay-1" id="k-contact-form-wrap">
+              ${renderContactForm()}
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>`;
+  }
+
+  function renderContactForm() {
+    const f      = CFG.forma_contacto || 'motor';
+    const action = f === 'web3forms' ? 'https://api.web3forms.com/submit' : '/api/contacto';
+    const web3Key = (f === 'web3forms' && CFG.web3forms_key)
+      ? `<input type="hidden" name="access_key" value="${CFG.web3forms_key}">` : '';
+    return `<form class="kf-form" id="k-contact-form" action="${action}" novalidate>
+      ${web3Key}
+      <input type="text" name="website" style="display:none;position:absolute;left:-9999px" tabindex="-1" autocomplete="off">
+      <div class="kf-field">
+        <input type="text" id="kf-nombre" name="nombre" required placeholder=" " autocomplete="name">
+        <label for="kf-nombre">Nombre completo *</label>
+        <span class="kf-err">Ingresa tu nombre</span>
+      </div>
+      <div class="kf-row">
+        <div class="kf-field">
+          <input type="email" id="kf-email" name="email" required placeholder=" " autocomplete="email">
+          <label for="kf-email">Correo electrónico *</label>
+          <span class="kf-err">Correo inválido</span>
+        </div>
+        <div class="kf-field">
+          <input type="tel" id="kf-telefono" name="telefono" placeholder=" " autocomplete="tel">
+          <label for="kf-telefono">Teléfono (opcional)</label>
+          <span class="kf-err"></span>
+        </div>
+      </div>
+      <div class="kf-field">
+        <input type="text" id="kf-asunto" name="asunto" required placeholder=" ">
+        <label for="kf-asunto">Asunto *</label>
+        <span class="kf-err">Ingresa el asunto</span>
+      </div>
+      <div class="kf-field" style="margin-bottom:1.5rem">
+        <textarea id="kf-mensaje" name="mensaje" required placeholder=" " rows="5"></textarea>
+        <label for="kf-mensaje">Mensaje *</label>
+        <span class="kf-err">Escribe tu mensaje</span>
+      </div>
+      <button type="submit" class="k-btn k-btn-primary" id="kf-submit"
+        style="width:100%;justify-content:center;height:52px;font-size:1rem;letter-spacing:0.03em">
+        Enviar mensaje
+      </button>
+      <div id="k-form-feedback" class="k-form-feedback"></div>
+    </form>`;
+  }
+
+  // ── VIEW: LISTA NOTICIAS ──────────────────────────────────────────
+  function renderListaNoticias(data) {
+    const secs     = CFG.secciones || DEFAULT_CFG.secciones;
+    const noticias = (data && (data.noticias || data)) || [];
+    const lista    = Array.isArray(noticias) ? noticias : [];
+
+    const grid = lista.length === 0
+      ? `<div class="k-empty"><div class="k-empty-icon">📰</div>No hay noticias publicadas.</div>`
+      : lista.map(n => noticiaCardHTML(n)).join('');
+
+    return `<div class="k-page" style="padding-top:var(--k-nav-h);min-height:80vh">
+      <div class="k-section">
+        <div class="k-container">
+          <div class="k-noticias-header k-reveal">
+            <div>
+              <span class="k-label">${secs.noticias || 'Noticias'}</span>
+              <h1 class="k-h2">Todas las noticias</h1>
+            </div>
+            <a href="/" onclick="navigate(event,'/')" class="k-back-btn">${SVG_ARROW_L} Volver al inicio</a>
+          </div>
+          <div class="k-noticias-grid">${grid}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ── VIEW: ARTÍCULO ────────────────────────────────────────────────
+  function renderArticulo(noticia) {
+    if (!noticia) {
+      return `<div class="k-page" style="padding-top:var(--k-nav-h)">
+        <div class="k-section">
+          <div class="k-container">
+            <div class="k-empty">
+              <div class="k-empty-icon">🔍</div>
+              Artículo no encontrado.
+              <br><br>
+              <a href="/noticias" onclick="navigate(event,'/noticias')" class="k-btn k-btn-outline">Ver todas las noticias</a>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    const fecha     = formatDate(noticia.fecha);
+    const heroImg   = noticia.foto_url
+      ? `<img src="${noticia.foto_url}" alt="${noticia.foto_alt||noticia.titulo||''}" class="k-article-hero-img">`
+      : '';
+    const contenido = noticia.contenido || noticia.cuerpo || noticia.texto || '';
+    const url       = window.location.href;
+
+    // kShare
+    const shareNativo  = navigator.share ? `<button class="k-btn k-btn-ghost" style="gap:8px" onclick="shareNativo('${url}','${(noticia.titulo||'').replace(/'/g,"\\'")}')"> ${SVG_SHARE} Compartir</button>` : '';
+    const shareWA      = `<a href="https://wa.me/?text=${encodeURIComponent((noticia.titulo||'')+' '+url)}" target="_blank" rel="noopener" class="k-btn k-btn-ghost" style="gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg> WhatsApp</a>`;
+
+    return `<div class="k-page" style="padding-top:var(--k-nav-h)">
+      <div class="k-section">
+        <div class="k-container">
+          <div class="k-article-wrap">
+            <a href="/noticias" onclick="navigate(event,'/noticias')" class="k-back-btn" style="margin-bottom:2rem;display:inline-flex">
+              ${SVG_ARROW_L} Volver a noticias
+            </a>
+            ${heroImg}
+            <div class="k-article-meta">
+              ${noticia.categoria ? `<span class="k-article-cat">${noticia.categoria}</span>` : ''}
+              ${fecha ? `<span>${fecha}</span>` : ''}
+              ${noticia.autor ? `<span>Por ${noticia.autor}</span>` : ''}
+            </div>
+            <h1 class="k-h2" style="margin-bottom:1.5rem">${noticia.titulo||''}</h1>
+            ${noticia.bajada ? `<p class="k-lead" style="margin-bottom:2rem">${noticia.bajada}</p>` : ''}
+            <div class="k-article-body">${contenido}</div>
+            <!-- kShare -->
+            <div class="k-kshare">
+              ${shareNativo}
+              ${shareWA}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function shareNativo(url, titulo) {
+    if (navigator.share) navigator.share({ title: titulo, url });
+  }
+
+  // ── VIEW: 404 ─────────────────────────────────────────────────────
+  function render404() {
+    return `<div class="k-page" style="padding-top:var(--k-nav-h);display:flex;align-items:center;justify-content:center;min-height:80vh">
+      <div class="k-empty">
+        <div class="k-empty-icon" style="font-size:4rem">404</div>
+        <p style="margin-bottom:1.5rem">Página no encontrada</p>
+        <a href="/" onclick="navigate(event,'/')" class="k-btn k-btn-primary">Volver al inicio</a>
+      </div>
+    </div>`;
+  }
+
+  // ── Noticia card helper ───────────────────────────────────────────
+  function noticiaCardHTML(n) {
+    const slug  = n.slug || slugify(n.titulo || '');
+    const fecha = formatDate(n.fecha);
+    const foto  = n.foto_url
+      ? `<img class="k-noticia-img" src="${n.foto_url}" alt="${n.foto_alt||n.titulo||''}" loading="lazy">`
+      : `<div class="k-noticia-img-placeholder">📰</div>`;
+    const url = `/noticia/${slug}`;
+    return `<article class="k-noticia-card k-reveal" onclick="navigate(null,'${url}');window.scrollTo(0,0)" role="link" tabindex="0"
+      onkeydown="if(event.key==='Enter'){navigate(null,'${url}');window.scrollTo(0,0)}">
+      ${foto}
+      <div class="k-noticia-body">
+        ${n.categoria ? `<span class="k-noticia-cat">${n.categoria}</span>` : ''}
+        <h3 class="k-noticia-titulo">${n.titulo||''}</h3>
+        ${n.bajada ? `<p class="k-noticia-bajada">${truncate(n.bajada,120)}</p>` : ''}
+        <div class="k-noticia-footer">
+          <span>${fecha}</span>
+          <span class="k-noticia-leer">Leer más ${SVG_ARROW_R}</span>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  // ── Init Home (banners, noticias, popup, form) ────────────────────
+  async function initHome() {
+    // Banners
+    const banners = await apiBanners();
+    const activos = Array.isArray(banners) ? banners.filter(b => b.activo) : [];
+    if (activos.length) {
+      const sec   = document.getElementById('k-banners-section');
+      const inner = document.getElementById('k-banners-section-inner');
+      if (sec && inner) {
+        inner.innerHTML = `<div style="padding:56px 0;background:var(--k-bg0)">
+          <div class="k-container">
+            <div class="k-banners-track">
+              ${activos.map(b => {
+                const img   = b.imagen_url ? `<img src="${b.imagen_url}" alt="${b.nombre||'Banner'}" loading="lazy">` : `<span style="font-size:1.5rem;color:var(--k-text3)">📢</span>`;
+                return b.link_url
+                  ? `<a href="${b.link_url}" target="_blank" rel="noopener" class="k-banner-item">${img}</a>`
+                  : `<div class="k-banner-item">${img}</div>`;
+              }).join('')}
+            </div>
+          </div>
+        </div>`;
+        sec.style.display = '';
+      }
+    }
+
+    // Noticias preview
+    const nData     = await apiNoticias(3);
+    const noticias  = Array.isArray(nData) ? nData : (nData && (nData.noticias || [])) || [];
+    if (noticias.length) {
+      const secNot    = document.getElementById('k-noticias-section') || document.querySelector('[id="k-noticias-section"]');
+      const previewEl = document.getElementById('k-noticias-preview');
+      const navNot    = document.getElementById('k-nav-noticias');
+      const ftNot     = document.getElementById('k-ft-noticias');
+
+      if (previewEl) {
+        previewEl.innerHTML = noticias.map(n => noticiaCardHTML(n)).join('');
+        // Mostrar sección
+        const parent = previewEl.closest('section') || previewEl.parentElement?.parentElement;
+        if (parent) parent.style.display = '';
+      }
+      // Mostrar enlace noticias en nav y footer
+      if (navNot) navNot.style.display = '';
+      if (ftNot)  ftNot.style.display  = '';
+      observeReveal();
+    }
+
+    // Popup
+    if (!sessionStorage.getItem('k_popup_seen')) {
+      const popup = await apiPopup();
+      if (popup && popup.activo && popup.titulo) {
+        mostrarPopup(popup);
+      }
+    }
+
+    // Form submit — formulario premium con floating labels
+    const form = document.getElementById('k-contact-form');
+    if (form) {
+      // Limpiar error al editar
+      form.querySelectorAll('.kf-field input, .kf-field textarea').forEach(el => {
+        el.addEventListener('input', () => el.closest('.kf-field')?.classList.remove('has-error'));
+      });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        // Validación client-side
+        let valid = true;
+        const campos = [
+          { el: form.querySelector('[name="nombre"]'),  test: v => v.trim().length > 0 },
+          { el: form.querySelector('[name="email"]'),   test: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) },
+          { el: form.querySelector('[name="asunto"]'),  test: v => v.trim().length > 0 },
+          { el: form.querySelector('[name="mensaje"]'), test: v => v.trim().length > 0 }
+        ];
+        campos.forEach(({ el, test }) => {
+          if (!el) return;
+          if (!test(el.value)) { el.closest('.kf-field')?.classList.add('has-error'); valid = false; }
+        });
+        if (!valid) return;
+
+        const btn = document.getElementById('kf-submit');
+        const fb  = document.getElementById('k-form-feedback');
+        btn.disabled = true;
+        btn.textContent = 'Enviando…';
+        fb.className = 'k-form-feedback';
+        fb.textContent = '';
+
+        try {
+          const data = Object.fromEntries(new FormData(form).entries());
+          const r = await fetch(form.action, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          const d = await r.json().catch(() => ({}));
+          if (r.ok && d.ok !== false && d.success !== false) {
+            const wrap = document.getElementById('k-contact-form-wrap');
+            if (wrap) wrap.innerHTML = `<div class="kf-success">
+              <div class="kf-success-icon">✓</div>
+              <h3 class="k-h3" style="margin-bottom:0.75rem">¡Mensaje enviado!</h3>
+              <p class="k-body" style="font-size:0.95rem;color:var(--k-text2)">
+                Gracias por escribirnos. Te responderemos a la brevedad.
+              </p>
+            </div>`;
+          } else {
+            throw new Error(d.error || d.message || 'Error al enviar');
+          }
+        } catch {
+          fb.className = 'k-form-feedback err';
+          fb.textContent = '✕ No pudimos enviar. Escríbenos directo a ' + (CFG.contacto || DEFAULT_CFG.contacto);
+          btn.disabled = false;
+          btn.textContent = 'Enviar mensaje';
+        }
+      });
+    }
+
+    observeReveal();
+  }
+
+  // ── Popup ─────────────────────────────────────────────────────────
+  let _popupCfg = null;
+  function mostrarPopup(d) {
+    _popupCfg = d;
+    _popupUrl = d.url_cta || '';
+    const tipos = {
+      info:   '🔵', alerta: '⚠️', promo: '🎁', aviso: '📢'
+    };
+    document.getElementById('k-popup-icon').textContent    = tipos[d.tipo] || '📢';
+    document.getElementById('k-popup-titulo').textContent  = d.titulo;
+    document.getElementById('k-popup-mensaje').textContent = d.mensaje || '';
+    const ctaBtn = document.getElementById('k-popup-cta');
+    if (d.texto_cta) {
+      ctaBtn.textContent  = d.texto_cta;
+      ctaBtn.style.display = '';
+    } else {
+      ctaBtn.style.display = 'none';
+    }
+    document.getElementById('k-popup-overlay').classList.add('visible');
+    sessionStorage.setItem('k_popup_seen', '1');
+  }
+  window.cerrarPopup = function() {
+    document.getElementById('k-popup-overlay').classList.remove('visible');
+  };
+  window.accionPopup = function() {
+    cerrarPopup();
+    if (_popupUrl) window.open(_popupUrl, '_blank', 'noopener');
+  };
+  document.getElementById('k-popup-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('k-popup-overlay')) cerrarPopup();
+  });
+
+  // ── INIT ──────────────────────────────────────────────────────────
+  async function init() {
+    try {
+      const cfg = await apiConfig();
+      if (cfg && typeof cfg === 'object') {
+        CFG = { ...DEFAULT_CFG, ...cfg };
+
+        // Arrays: si vienen vacíos del kAdmin, usar los defaults
+        if (!Array.isArray(cfg.propuesta)    || !cfg.propuesta.length)    CFG.propuesta    = DEFAULT_CFG.propuesta;
+        if (!Array.isArray(cfg.servicios)    || !cfg.servicios.length)    CFG.servicios    = DEFAULT_CFG.servicios;
+        if (!Array.isArray(cfg.nosotros_stats)|| !cfg.nosotros_stats.length) CFG.nosotros_stats = DEFAULT_CFG.nosotros_stats;
+
+        // Secciones: el kAdmin guarda booleanos (visible/oculta).
+        // Si el valor es bool true → usar el label del default.
+        // Si es false/0 → sección oculta (omitir).
+        // Si es string no vacío → usarlo como label personalizado.
+        if (cfg.secciones && typeof cfg.secciones === 'object') {
+          CFG.secciones = {};
+          Object.entries(DEFAULT_CFG.secciones).forEach(([k, defaultLabel]) => {
+            const v = cfg.secciones[k];
+            if (v === false || v === 0 || v === '0' || v === null) return; // oculta
+            CFG.secciones[k] = (typeof v === 'string' && v.trim()) ? v : defaultLabel;
+          });
+          if (!Object.keys(CFG.secciones).length) CFG.secciones = { ...DEFAULT_CFG.secciones };
+        }
+
+        if (cfg.redes) CFG.redes = { ...DEFAULT_CFG.redes, ...cfg.redes };
+      }
+      applyConfig(CFG);
+      await router();
+    } catch(e) {
+      console.error('[Kore] Error en init:', e);
+    } finally {
+      // El loading SIEMPRE se oculta — pase lo que pase
+      const loading = document.getElementById('k-loading');
+      if (loading) {
+        loading.classList.add('hidden');
+        setTimeout(() => loading.remove(), 500);
+      }
+    }
+    window.addEventListener('popstate', () => { router(); window.scrollTo(0,0); });
+  }
+
+  init();
+  </script>
+</body>
+</html>
