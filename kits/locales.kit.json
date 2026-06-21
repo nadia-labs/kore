@@ -1,0 +1,186 @@
+{
+  "id": "locales",
+  "nombre": "Kit Locales",
+  "version": "1.0.0",
+  "icono": "🏪",
+  "descripcion": "Gestión de locales comerciales con geolocalización, categorías y sistema de Tiers. Base para Kliks tipo Direktorio.",
+  "autor": "nadIA",
+  "dependencias": [],
+  "schema": {
+    "tabla": "kit_locales",
+    "campos": [
+      {
+        "nombre": "id",
+        "tipo": "TEXT PRIMARY KEY",
+        "requerido": true,
+        "descripcion": "Identificador único del local"
+      },
+      {
+        "nombre": "titulo",
+        "tipo": "TEXT NOT NULL",
+        "requerido": true,
+        "descripcion": "Nombre del local comercial"
+      },
+      {
+        "nombre": "slug",
+        "tipo": "TEXT UNIQUE NOT NULL",
+        "requerido": true,
+        "descripcion": "URL-friendly identifier"
+      },
+      {
+        "nombre": "descripcion",
+        "tipo": "TEXT",
+        "requerido": false,
+        "descripcion": "Descripción del local y servicios"
+      },
+      {
+        "nombre": "categoria",
+        "tipo": "TEXT",
+        "requerido": false,
+        "descripcion": "Categoría del negocio (ej: restaurante, ferretería)"
+      },
+      {
+        "nombre": "lat",
+        "tipo": "REAL",
+        "requerido": false,
+        "descripcion": "Latitud para geolocalización"
+      },
+      {
+        "nombre": "lng",
+        "tipo": "REAL",
+        "requerido": false,
+        "descripcion": "Longitud para geolocalización"
+      },
+      {
+        "nombre": "direccion",
+        "tipo": "TEXT",
+        "requerido": false,
+        "descripcion": "Dirección física del local"
+      },
+      {
+        "nombre": "telefono",
+        "tipo": "TEXT",
+        "requerido": false,
+        "descripcion": "Teléfono de contacto"
+      },
+      {
+        "nombre": "email",
+        "tipo": "TEXT",
+        "requerido": false,
+        "descripcion": "Correo electrónico"
+      },
+      {
+        "nombre": "website",
+        "tipo": "TEXT",
+        "requerido": false,
+        "descripcion": "Sitio web del local"
+      },
+      {
+        "nombre": "horario",
+        "tipo": "TEXT",
+        "requerido": false,
+        "descripcion": "Horario de atención"
+      },
+      {
+        "nombre": "imagen_url",
+        "tipo": "TEXT",
+        "requerido": false,
+        "descripcion": "URL de la imagen principal"
+      },
+      {
+        "nombre": "tier_id",
+        "tipo": "TEXT DEFAULT 'basico'",
+        "requerido": false,
+        "descripcion": "Nivel de suscripción (basico, visible, destacado, vip)"
+      },
+      {
+        "nombre": "activo",
+        "tipo": "INTEGER DEFAULT 1",
+        "requerido": false,
+        "descripcion": "Estado de publicación del local"
+      },
+      {
+        "nombre": "orden",
+        "tipo": "INTEGER DEFAULT 0",
+        "requerido": false,
+        "descripcion": "Orden manual de visualización"
+      },
+      {
+        "nombre": "creado_en",
+        "tipo": "TEXT DEFAULT (datetime('now'))",
+        "requerido": false,
+        "descripcion": "Timestamp de creación"
+      },
+      {
+        "nombre": "actualizado",
+        "tipo": "TEXT DEFAULT (datetime('now'))",
+        "requerido": false,
+        "descripcion": "Timestamp de última actualización"
+      }
+    ]
+  },
+  "sql_install": "CREATE TABLE IF NOT EXISTS kit_locales (id TEXT PRIMARY KEY, titulo TEXT NOT NULL, slug TEXT UNIQUE NOT NULL, descripcion TEXT, categoria TEXT, lat REAL, lng REAL, direccion TEXT, telefono TEXT, email TEXT, website TEXT, horario TEXT, imagen_url TEXT, tier_id TEXT DEFAULT 'basico', activo INTEGER DEFAULT 1, orden INTEGER DEFAULT 0, creado_en TEXT DEFAULT (datetime('now')), actualizado TEXT DEFAULT (datetime('now'))); CREATE INDEX IF NOT EXISTS idx_locales_categoria ON kit_locales(categoria); CREATE INDEX IF NOT EXISTS idx_locales_tier ON kit_locales(tier_id); CREATE INDEX IF NOT EXISTS idx_locales_activo ON kit_locales(activo);",
+  "sql_uninstall": "DROP TABLE IF EXISTS kit_locales;",
+  "endpoints": [
+    {
+      "metodo": "GET",
+      "ruta": "/api/locales",
+      "descripcion": "Lista todos los locales activos con filtros opcionales",
+      "publico": true,
+      "params": ["q", "categoria", "tier"]
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/api/locales/:slug",
+      "descripcion": "Obtiene un local por slug",
+      "publico": true
+    },
+    {
+      "metodo": "GET",
+      "ruta": "/admin/api/locales",
+      "descripcion": "Lista todos los locales (admin)",
+      "publico": false,
+      "requiere": "auth"
+    },
+    {
+      "metodo": "POST",
+      "ruta": "/admin/api/locales",
+      "descripcion": "Crear nuevo local",
+      "publico": false,
+      "requiere": "admin"
+    },
+    {
+      "metodo": "PATCH",
+      "ruta": "/admin/api/locales/:id",
+      "descripcion": "Actualizar local existente",
+      "publico": false,
+      "requiere": "admin"
+    },
+    {
+      "metodo": "DELETE",
+      "ruta": "/admin/api/locales/:id",
+      "descripcion": "Eliminar local",
+      "publico": false,
+      "requiere": "admin"
+    }
+  ],
+  "configuracion": {
+    "toggle_key": "kit_locales",
+    "categorias_predefinidas": [
+      "Gastronomía",
+      "Comercio",
+      "Servicios",
+      "Salud",
+      "Educación",
+      "Entretenimiento",
+      "Tecnología",
+      "Belleza",
+      "Automotriz",
+      "Otros"
+    ]
+  },
+  "compatible_con": [
+    "direktorio",
+    "mediatiko"
+  ]
+}

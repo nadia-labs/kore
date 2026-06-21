@@ -545,19 +545,6 @@ app.get('/admin/login', (req, res) => {
 });
 
 // ══════════════════════════════════════════════
-//  API v1 — COMPATIBILITY LAYER
-//  /api/v1/* es un alias de /api/*
-//  Se mantiene /api/* sin cambios (backward-compatible)
-// ══════════════════════════════════════════════
-
-app.use('/api/v1', (req, res) => {
-  // Express ya stripeó el prefijo /api/v1 de req.url,
-  // lo restauramos como /api/* y re-despachamos.
-  req.url = '/api' + req.url;
-  app(req, res);
-});
-
-// ══════════════════════════════════════════════
 //  API — KITS NATIVOS
 // ══════════════════════════════════════════════
 
