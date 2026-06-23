@@ -45,11 +45,16 @@ Kore es un framework CMS/PWA que combina la liviandad de un stack minimalista (N
 bash <(curl -fsSL https://raw.githubusercontent.com/nadia-labs/kore/main/kinstall.sh)
 ```
 
-El script instala Node.js 20, PM2, Nginx, descarga el Motor y configura todo. Luego visita:
+El script instala Node.js 20, PM2, Nginx, descarga el Motor y configura todo. 
+
+**⚠️ IMPORTANTE:** Después de que kInstall termine, debes acceder usando **tu dominio**, NO localhost:
 
 ```
 https://tu-dominio.cl/setup
 ```
+
+❌ **NO USES:** `http://localhost:3001` (solo funciona en instalación local)  
+✅ **USA:** Tu dominio real o IP pública del servidor
 
 ### Opción 2: Manual (desarrollo)
 
