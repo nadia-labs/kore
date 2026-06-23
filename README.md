@@ -144,6 +144,28 @@ npm run backup     # Backup manual de la base de datos
 - `GET/POST /admin/api/kliks/*` — Gestión de Kliks
 - `GET/POST /admin/api/kits/*` — Gestión de Kits
 
+## Troubleshooting
+
+### Error 429 "Too Many Requests" al abrir /admin
+
+**Problema:** Al intentar acceder al panel de administración aparece el error 429.
+
+**Causa:** Configuración restrictiva del rate limiting en Nginx (versión anterior: `rate=5r/m`).
+
+**Solución:** Actualizar configuración de Nginx a `rate=10r/s` y `burst=20`. Ver detalles completos en [SOLUCION-429.md](./SOLUCION-429.md).
+
+**Fix rápido en servidor activo:**
+```bash
+sudo nano /etc/nginx/sites-available/tu-app
+# Cambiar: rate=5r/m → rate=10r/s
+# Cambiar: burst=3 → burst=20
+sudo nginx -t && sudo nginx -s reload
+```
+
+✅ **Resuelto en v2.1+** — Las nuevas instalaciones ya incluyen la configuración corregida.
+
+---
+
 ## Licencia
 
 UNLICENSED — Propiedad de nadIA Labs.

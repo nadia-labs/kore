@@ -6,7 +6,7 @@
 #    __APP_PATH__  → ruta absoluta al directorio de la app
 # ══════════════════════════════════════════════
 
-limit_req_zone $binary_remote_addr zone=kore_login:10m rate=5r/m;
+limit_req_zone $binary_remote_addr zone=kore_login:10m rate=10r/s;
 
 # ── HTTP → HTTPS
 server {
@@ -62,7 +62,7 @@ server {
     }
 
     location = /admin/login {
-        limit_req zone=kore_login burst=3 nodelay;
+        limit_req zone=kore_login burst=20 nodelay;
         limit_req_status 429;
         proxy_pass http://127.0.0.1:__PORT__;
         proxy_http_version 1.1;
@@ -73,7 +73,7 @@ server {
     }
 
     location = /setup {
-        limit_req zone=kore_login burst=5 nodelay;
+        limit_req zone=kore_login burst=20 nodelay;
         proxy_pass http://127.0.0.1:__PORT__;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
