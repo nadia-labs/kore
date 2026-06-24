@@ -628,8 +628,21 @@
         document.getElementById('btnIrAdmin').href = '/admin/login';
         mostrarPaso(4);
 
-        // El Motor se reinicia solo — redirigir después de 6 segundos
-        setTimeout(() => { location.href = '/admin/login'; }, 6000);
+        // El Motor se reinicia solo — esperar hasta que responda antes de redirigir
+        const esperarMotor = async () => {
+          for (let i = 0; i < 30; i++) {
+            await new Promise(r => setTimeout(r, 1000));
+            try {
+              const ping = await fetch('/admin/login', { method: 'HEAD' });
+              if (ping.ok || ping.status === 302 || ping.status === 200) {
+                location.href = '/admin/login';
+                return;
+              }
+            } catch {}
+          }
+          location.href = '/admin/login'; // fallback tras 30 intentos
+        };
+        esperarMotor();
       } else {
         mostrarError(3, data.error || 'Error durante la instalación. Revisa los logs del Motor.');
         btn.disabled = false;
