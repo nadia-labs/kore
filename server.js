@@ -21,15 +21,15 @@ const AdmZip        = require('adm-zip');
 
 // ── Configuración desde .env
 const PORT            = parseInt(process.env.PORT)    || 3001;
-const PROJECT_NAME    = process.env.PROJECT_NAME      || 'Kore App';
-const PROJECT_URL     = process.env.PROJECT_URL       || '';
+let PROJECT_NAME    = process.env.PROJECT_NAME      || 'Kore App';
+let PROJECT_URL     = process.env.PROJECT_URL       || '';
 const DB_PATH         = process.env.DB_PATH           || path.join(__dirname, 'db', 'database.sqlite');
 const SESSION_SECRET  = process.env.SESSION_SECRET;
-const KAPITAN_USER    = process.env.KAPITAN_USER;
-const KAPITAN_PASS    = process.env.KAPITAN_PASS;
-const CLAUDE_API_KEY  = process.env.CLAUDE_API_KEY    || '';
+let KAPITAN_USER    = process.env.KAPITAN_USER;
+let KAPITAN_PASS    = process.env.KAPITAN_PASS;
+let CLAUDE_API_KEY  = process.env.CLAUDE_API_KEY    || '';
 const CLAUDE_MODEL    = process.env.CLAUDE_MODEL      || 'claude-haiku-4-5-20251001';
-const KORE_INSTALLED  = process.env.KORE_INSTALLED    === 'true';
+let KORE_INSTALLED  = process.env.KORE_INSTALLED    === 'true';
 
 // ── Validar variables críticas
 if (!SESSION_SECRET) { console.error('[Kore] ✕ SESSION_SECRET no definido en .env'); process.exit(1); }
@@ -485,10 +485,17 @@ app.post('/admin/api/setup', async (req, res) => {
       } catch(e) { console.warn(`[Kore Setup] ⚠ No se pudo activar el Klik: ${e.message}`); }
     }
 
-    // Responder éxito y reiniciar el proceso (PM2 lo levanta de nuevo)
-    res.json({ ok: true, mensaje: 'Instalación completada. El Motor se reiniciará.' });
-    console.log('[Kore Setup] ✓ Instalación completada — reiniciando Motor…');
-    setTimeout(() => process.exit(0), 800);
+    // Re-leer .env en caliente — sin reiniciar el proceso ni causar 502
+    require('dotenv').config({ path: envPath, override: true });
+    KORE_INSTALLED = true;
+    PROJECT_NAME   = process.env.PROJECT_NAME || PROJECT_NAME;
+    PROJECT_URL    = process.env.PROJECT_URL  || PROJECT_URL;
+    KAPITAN_USER   = process.env.KAPITAN_USER;
+    KAPITAN_PASS   = process.env.KAPITAN_PASS;
+    CLAUDE_API_KEY = process.env.CLAUDE_API_KEY || '';
+
+    console.log('[Kore Setup] ✓ Instalación completada — Motor activo sin interrupción');
+    res.json({ ok: true, mensaje: 'Instalación completada.' });
 
   } catch(e) {
     console.error(`[Kore Setup] ✕ ${e.message}`);
