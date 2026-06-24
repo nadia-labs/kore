@@ -1319,7 +1319,7 @@ function cargarKits() {
       }
 
       // ── Tabla ──
-      const cols = kit.campos.map(c => `${c.nombre||c.id} ${TIPO_SQL[c.tipo] || 'TEXT'}`).join(', ');
+      const cols = kit.campos.filter(c => (c.nombre||c.id) !== 'id').map(c => `${c.nombre||c.id} ${TIPO_SQL[c.tipo] || 'TEXT'}`).join(', ');
       db.exec(`CREATE TABLE IF NOT EXISTS kit_${kit.id} (id TEXT PRIMARY KEY, ${cols}, creado_en TEXT DEFAULT (datetime('now')), actualizado TEXT DEFAULT (datetime('now')))`);
 
       const base = `/api/kit/${kit.id}`;
