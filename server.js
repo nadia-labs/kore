@@ -1553,6 +1553,9 @@ function eh(s) {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+// Kits dinámicos — deben registrarse ANTES del catch-all SPA
+cargarKits();
+
 // SPA routing: todas las rutas no-API sirven el Klik
 // En la ruta raíz (/): inyecta el hero server-side para mejorar LCP → score PageSpeed 80+
 app.get('*', (req, res) => {
@@ -1621,7 +1624,6 @@ app.get('*', (req, res) => {
 
 initDB();
 runMigrations();
-cargarKits();
 
 const server = app.listen(PORT, () => {
   console.log(`[Kore] ✓ ${PROJECT_NAME} corriendo en puerto ${PORT}`);
