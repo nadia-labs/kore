@@ -443,7 +443,7 @@ app.post('/admin/api/setup', async (req, res) => {
       ``,
       `PROJECT_NAME=${proyecto_nombre.trim()}`,
       `PROJECT_URL=${proyecto_url.trim().replace(/\/$/, '')}`,
-      `PORT=${parseInt(puerto) || 3001}`,
+      `PORT=${parseInt(puerto) || PORT}`,
       ``,
       `KAPITAN_USER=${kapitan_usuario.trim()}`,
       `KAPITAN_PASS=${kapitan_hash}`,
