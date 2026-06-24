@@ -5,7 +5,7 @@
 
 'use strict';
 
-require('dotenv').config();
+require('dotenv').config({ override: true });
 
 // ── Dependencias
 const express       = require('express');
