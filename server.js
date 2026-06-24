@@ -1148,9 +1148,12 @@ app.post('/admin/api/kits/install', requireKapitan, uploadZip.single('archivo'),
   `).run(kitJson.id, kitJson.nombre, kitJson.version || '1.0',
          kitJson.icono || null, kitJson.descripcion || null);
 
+  // Registrar rutas en caliente \u2014 sin necesidad de reiniciar
+  registrarKit(kitJson);
+
   console.log(`[Kore] \u2713 Kit instalado: ${kitJson.nombre} (${kitJson.id})`);
   res.json({ ok: true, id: kitJson.id, nombre: kitJson.nombre,
-             mensaje: 'Kit instalado. Reinicia el Motor para activar.' });
+             mensaje: `Kit instalado y activo en /api/kit/${kitJson.id}` });
 });
 
 app.patch('/admin/api/kits/:id/toggle', requireKapitan, (req, res) => {
@@ -1296,85 +1299,93 @@ const TIPO_SQL = { texto:'TEXT', textarea:'TEXT', url:'TEXT', richtext:'TEXT', n
   precio:'INTEGER', toggle:'INTEGER DEFAULT 0', date:'TEXT', datetime:'TEXT', select:'TEXT',
   select_dinamico:'TEXT', color:'TEXT', coordenadas:'TEXT', imagen_upload:'TEXT', tags:'TEXT' };
 
+const _kitsRegistrados = new Set();
+
+function registrarKit(kit) {
+  if (!kit.id || !kit.campos) return;
+  if (_kitsRegistrados.has(kit.id)) return;
+  _kitsRegistrados.add(kit.id);
+
+  // ── Migraciones ──
+  if (Array.isArray(kit.migraciones)) {
+    const versionActual = db.prepare(
+      `SELECT valor FROM kconfig WHERE clave=?`
+    ).get(`kit_${kit.id}_version`)?.valor || '0';
+    for (const mig of kit.migraciones) {
+      if (String(mig.version) > String(versionActual)) {
+        try {
+          db.exec(mig.sql);
+          db.prepare('INSERT OR REPLACE INTO kconfig (clave, valor) VALUES (?, ?)').run(
+            `kit_${kit.id}_version`, String(mig.version));
+          console.log(`[Kore]   \u21b3 Migraci\u00f3n aplicada: ${kit.id} v${mig.version}`);
+        } catch (e) { console.error(`[Kore]   \u2715 Error migraci\u00f3n ${kit.id} v${mig.version}: ${e.message}`); }
+      }
+    }
+  }
+
+  // ── Tabla ──
+  const cols = kit.campos.filter(c => (c.nombre||c.id) !== 'id').map(c => `${c.nombre||c.id} ${TIPO_SQL[c.tipo] || 'TEXT'}`).join(', ');
+  db.exec(`CREATE TABLE IF NOT EXISTS kit_${kit.id} (id TEXT PRIMARY KEY, ${cols}, creado_en TEXT DEFAULT (datetime('now')), actualizado TEXT DEFAULT (datetime('now')))`);
+
+  const base = `/api/kit/${kit.id}`;
+
+  // ── Rutas CRUD ──
+  app.get(base, (req, res) => {
+    const { q, activo, limit } = req.query;
+    let filas = db.prepare(`SELECT * FROM kit_${kit.id} ORDER BY ${kit.ordenar_por || 'creado_en'} DESC`).all();
+    if (activo !== undefined) filas = filas.filter(f => String(f.activo) === '1');
+    if (q && kit.busqueda_en?.length) {
+      const ql = q.toLowerCase();
+      filas = filas.filter(f => kit.busqueda_en.some(campo => String(f[campo]||'').toLowerCase().includes(ql)));
+    }
+    if (limit) filas = filas.slice(0, parseInt(limit));
+    res.json(filas);
+  });
+
+  app.get(`${base}/:id`, (req, res) => {
+    const f = db.prepare(`SELECT * FROM kit_${kit.id} WHERE id=?`).get(req.params.id);
+    f ? res.json(f) : res.status(404).json({ error: 'No encontrado' });
+  });
+
+  app.post(base, requireAdmin, (req, res) => {
+    const id = uid();
+    const campos = kit.campos.filter(c => (c.nombre||c.id) !== 'id').map(c => c.nombre||c.id);
+    const vals   = campos.map(c => req.body[c] ?? null);
+    db.prepare(`INSERT INTO kit_${kit.id} (id,${campos.join(',')}) VALUES (?,${campos.map(()=>'?').join(',')})`).run(id, ...vals);
+    res.json({ ok:true, id });
+  });
+
+  app.patch(`${base}/:id`, requireAdmin, (req, res) => {
+    const campos = kit.campos.filter(c => (c.nombre||c.id) !== 'id').map(c => c.nombre||c.id);
+    const sets   = campos.map(c => `${c}=?`).join(',');
+    const vals   = campos.map(c => req.body[c] ?? null);
+    db.prepare(`UPDATE kit_${kit.id} SET ${sets},actualizado=datetime('now') WHERE id=?`).run(...vals, req.params.id);
+    res.json({ ok:true });
+  });
+
+  app.patch(`${base}/:id/toggle`, requireAdmin, (req, res) => {
+    db.prepare(`UPDATE kit_${kit.id} SET activo=((activo+1)%2),actualizado=datetime('now') WHERE id=?`).run(req.params.id);
+    res.json({ ok:true });
+  });
+
+  app.delete(`${base}/:id`, requireKapitan, (req, res) => {
+    db.prepare(`DELETE FROM kit_${kit.id} WHERE id=?`).run(req.params.id);
+    res.json({ ok:true });
+  });
+
+  console.log(`[Kore] Kit cargado: ${kit.nombre} (${kit.id})`);
+}
+
 function cargarKits() {
   const kitsDir = path.join(__dirname, 'kits');
   if (!fs.existsSync(kitsDir)) return;
-
   const archivos = fs.readdirSync(kitsDir).filter(f => f.endsWith('.kit.json'));
   for (const archivo of archivos) {
     try {
       const kit = JSON.parse(fs.readFileSync(path.join(kitsDir, archivo), 'utf8'));
-      if (!kit.id || !kit.campos) continue;
-
       const instalado = db.prepare('SELECT activo FROM kits_instalados WHERE id=?').get(kit.id);
       if (!instalado || !instalado.activo) continue;
-
-      // ── Migraciones ──
-      if (Array.isArray(kit.migraciones)) {
-        const versionActual = db.prepare(
-          `SELECT valor FROM kconfig WHERE clave=?`
-        ).get(`kit_${kit.id}_version`)?.valor || '0';
-        for (const mig of kit.migraciones) {
-          if (String(mig.version) > String(versionActual)) {
-            try {
-              db.exec(mig.sql);
-              db.prepare('INSERT OR REPLACE INTO kconfig (clave, valor) VALUES (?, ?)').run(
-                `kit_${kit.id}_version`, String(mig.version));
-              console.log(`[Kore]   \u21b3 Migraci\u00f3n aplicada: ${kit.id} v${mig.version}`);
-            } catch (e) { console.error(`[Kore]   \u2715 Error migraci\u00f3n ${kit.id} v${mig.version}: ${e.message}`); }
-          }
-        }
-      }
-
-      // ── Tabla ──
-      const cols = kit.campos.filter(c => (c.nombre||c.id) !== 'id').map(c => `${c.nombre||c.id} ${TIPO_SQL[c.tipo] || 'TEXT'}`).join(', ');
-      db.exec(`CREATE TABLE IF NOT EXISTS kit_${kit.id} (id TEXT PRIMARY KEY, ${cols}, creado_en TEXT DEFAULT (datetime('now')), actualizado TEXT DEFAULT (datetime('now')))`);
-
-      const base = `/api/kit/${kit.id}`;
-
-      // ── Rutas CRUD ──
-      app.get(base, (req, res) => {
-        const { q } = req.query;
-        let filas = db.prepare(`SELECT * FROM kit_${kit.id} ORDER BY ${kit.ordenar_por || 'creado_en'} DESC`).all();
-        if (q && kit.busqueda_en?.length) {
-          const ql = q.toLowerCase();
-          filas = filas.filter(f => kit.busqueda_en.some(campo => String(f[campo]||'').toLowerCase().includes(ql)));
-        }
-        res.json(filas);
-      });
-
-      app.get(`${base}/:id`, (req, res) => {
-        const f = db.prepare(`SELECT * FROM kit_${kit.id} WHERE id=?`).get(req.params.id);
-        f ? res.json(f) : res.status(404).json({ error: 'No encontrado' });
-      });
-
-      app.post(base, requireAdmin, (req, res) => {
-        const id = uid();
-        const campos = kit.campos.map(c => c.nombre||c.id);
-        const vals   = campos.map(c => req.body[c] ?? null);
-        db.prepare(`INSERT INTO kit_${kit.id} (id,${campos.join(',')}) VALUES (?,${campos.map(()=>'?').join(',')})`).run(id, ...vals);
-        res.json({ ok:true, id });
-      });
-
-      app.patch(`${base}/:id`, requireAdmin, (req, res) => {
-        const campos = kit.campos.map(c => c.nombre||c.id);
-        const sets   = campos.map(c => `${c}=?`).join(',');
-        const vals   = campos.map(c => req.body[c] ?? null);
-        db.prepare(`UPDATE kit_${kit.id} SET ${sets},actualizado=datetime('now') WHERE id=?`).run(...vals, req.params.id);
-        res.json({ ok:true });
-      });
-
-      app.patch(`${base}/:id/toggle`, requireAdmin, (req, res) => {
-        db.prepare(`UPDATE kit_${kit.id} SET activo=((activo+1)%2),actualizado=datetime('now') WHERE id=?`).run(req.params.id);
-        res.json({ ok:true });
-      });
-
-      app.delete(`${base}/:id`, requireKapitan, (req, res) => {
-        db.prepare(`DELETE FROM kit_${kit.id} WHERE id=?`).run(req.params.id);
-        res.json({ ok:true });
-      });
-
-      console.log(`[Kore] Kit cargado: ${kit.nombre} (${kit.id})`);
+      registrarKit(kit);
     } catch(e) {
       console.error(`[Kore] Error cargando kit ${archivo}: ${e.message}`);
     }
