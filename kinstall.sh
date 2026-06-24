@@ -191,8 +191,12 @@ ask_optional "GOOGLE_MAPS_KEY"                    GOOGLE_MAPS_KEY
 #  4. npm install
 # ══════════════════════════════════════════════
 step "Instalando dependencias npm"
-npm install --omit=dev || die "npm install falló."
-ok "Dependencias instaladas"
+# Forzar recompilación de módulos nativos (better-sqlite3, sharp, bcrypt)
+# para la plataforma del servidor. Si hay un node_modules copiado desde
+# otro sistema (ej: macOS → Linux), los binarios nativos no sirven.
+rm -rf node_modules package-lock.json
+npm install --omit=dev || die "npm install falló. Verifica que build-essential esté instalado."
+ok "Dependencias instaladas (recompiladas para $(uname -m))"
 
 # ══════════════════════════════════════════════
 #  5. SESSION_SECRET + DIRECTORIOS
@@ -329,7 +333,31 @@ ECOEOF
 
 pm2 delete "${APP_NAME}" 2>/dev/null || true
 pm2 start ecosystem.config.js --env production
-ok "Motor iniciado (puerto ${PORT})"
+
+# Esperar hasta 10s y verificar que la app esté online
+ATTEMPTS=0
+while [[ $ATTEMPTS -lt 10 ]]; do
+  STATUS=$(pm2 jlist 2>/dev/null | node -e "
+    const list = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+    const app  = list.find(a => a.name === '${APP_NAME}');
+    process.stdout.write(app ? app.pm2_env.status : 'not_found');
+  " 2>/dev/null || echo "unknown")
+  [[ "$STATUS" == "online" ]] && break
+  ATTEMPTS=$((ATTEMPTS + 1))
+  sleep 1
+done
+
+if [[ "$STATUS" == "online" ]]; then
+  ok "Motor online en puerto ${PORT}"
+else
+  err "Motor en estado '${STATUS}' — los módulos nativos no cargaron o el .env tiene errores."
+  echo ""
+  warn "Diagnóstico rápido:"
+  echo -e "   pm2 logs ${APP_NAME} --lines 30"
+  echo ""
+  die "La app no inició correctamente. Revisa los logs antes de continuar."
+fi
+
 pm2 save
 
 if pm2 startup 2>&1 | grep -q "sudo"; then
