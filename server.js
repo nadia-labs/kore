@@ -365,6 +365,8 @@ async function claudeVision(imageBuffer, prompt) {
 // ══════════════════════════════════════════════
 
 const app = express();
+const kitsRouter = express.Router();     // montado antes del catch-all SPA
+app.use('/api/kit', kitsRouter);
 app.set('trust proxy', 1);
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -1334,10 +1336,10 @@ function registrarKit(kit) {
   const cols = kit.campos.filter(c => (c.nombre||c.id) !== 'id').map(c => `${c.nombre||c.id} ${TIPO_SQL[c.tipo] || 'TEXT'}`).join(', ');
   db.exec(`CREATE TABLE IF NOT EXISTS kit_${kit.id} (id TEXT PRIMARY KEY, ${cols}, creado_en TEXT DEFAULT (datetime('now')), actualizado TEXT DEFAULT (datetime('now')))`);
 
-  const base = `/api/kit/${kit.id}`;
+  const base = `/${kit.id}`;   // kitsRouter ya está montado en /api/kit
 
-  // ── Rutas CRUD ──
-  app.get(base, (req, res) => {
+  // ── Rutas CRUD (en kitsRouter — siempre antes del catch-all SPA) ──
+  kitsRouter.get(base, (req, res) => {
     const { q, activo, limit } = req.query;
     let filas = db.prepare(`SELECT * FROM kit_${kit.id} ORDER BY ${kit.ordenar_por || 'creado_en'} DESC`).all();
     if (activo !== undefined) filas = filas.filter(f => String(f.activo) === '1');
@@ -1349,12 +1351,12 @@ function registrarKit(kit) {
     res.json(filas);
   });
 
-  app.get(`${base}/:id`, (req, res) => {
+  kitsRouter.get(`${base}/:id`, (req, res) => {
     const f = db.prepare(`SELECT * FROM kit_${kit.id} WHERE id=?`).get(req.params.id);
     f ? res.json(f) : res.status(404).json({ error: 'No encontrado' });
   });
 
-  app.post(base, requireAdmin, (req, res) => {
+  kitsRouter.post(base, requireAdmin, (req, res) => {
     const id = uid();
     const campos = kit.campos.filter(c => (c.nombre||c.id) !== 'id').map(c => c.nombre||c.id);
     const vals   = campos.map(c => req.body[c] ?? null);
@@ -1362,7 +1364,7 @@ function registrarKit(kit) {
     res.json({ ok:true, id });
   });
 
-  app.patch(`${base}/:id`, requireAdmin, (req, res) => {
+  kitsRouter.patch(`${base}/:id`, requireAdmin, (req, res) => {
     const campos = kit.campos.filter(c => (c.nombre||c.id) !== 'id').map(c => c.nombre||c.id);
     const sets   = campos.map(c => `${c}=?`).join(',');
     const vals   = campos.map(c => req.body[c] ?? null);
@@ -1370,12 +1372,12 @@ function registrarKit(kit) {
     res.json({ ok:true });
   });
 
-  app.patch(`${base}/:id/toggle`, requireAdmin, (req, res) => {
+  kitsRouter.patch(`${base}/:id/toggle`, requireAdmin, (req, res) => {
     db.prepare(`UPDATE kit_${kit.id} SET activo=((activo+1)%2),actualizado=datetime('now') WHERE id=?`).run(req.params.id);
     res.json({ ok:true });
   });
 
-  app.delete(`${base}/:id`, requireKapitan, (req, res) => {
+  kitsRouter.delete(`${base}/:id`, requireKapitan, (req, res) => {
     db.prepare(`DELETE FROM kit_${kit.id} WHERE id=?`).run(req.params.id);
     res.json({ ok:true });
   });

@@ -2263,6 +2263,7 @@
           closeModal();
           flash(`${r.mensaje}`);
           loadKliks();
+          await loadDynamicKits();
         } catch(e) { flash(e.message, 'err'); }
         finally { btn.disabled = false; btn.textContent = 'Instalar'; }
       }
