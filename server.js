@@ -1319,7 +1319,7 @@ function cargarKits() {
       }
 
       // ── Tabla ──
-      const cols = kit.campos.map(c => `${c.id} ${TIPO_SQL[c.tipo] || 'TEXT'}`).join(', ');
+      const cols = kit.campos.map(c => `${c.nombre||c.id} ${TIPO_SQL[c.tipo] || 'TEXT'}`).join(', ');
       db.exec(`CREATE TABLE IF NOT EXISTS kit_${kit.id} (id TEXT PRIMARY KEY, ${cols}, creado_en TEXT DEFAULT (datetime('now')), actualizado TEXT DEFAULT (datetime('now')))`);
 
       const base = `/api/kit/${kit.id}`;
@@ -1342,14 +1342,14 @@ function cargarKits() {
 
       app.post(base, requireAdmin, (req, res) => {
         const id = uid();
-        const campos = kit.campos.map(c => c.id);
+        const campos = kit.campos.map(c => c.nombre||c.id);
         const vals   = campos.map(c => req.body[c] ?? null);
         db.prepare(`INSERT INTO kit_${kit.id} (id,${campos.join(',')}) VALUES (?,${campos.map(()=>'?').join(',')})`).run(id, ...vals);
         res.json({ ok:true, id });
       });
 
       app.patch(`${base}/:id`, requireAdmin, (req, res) => {
-        const campos = kit.campos.map(c => c.id);
+        const campos = kit.campos.map(c => c.nombre||c.id);
         const sets   = campos.map(c => `${c}=?`).join(',');
         const vals   = campos.map(c => req.body[c] ?? null);
         db.prepare(`UPDATE kit_${kit.id} SET ${sets},actualizado=datetime('now') WHERE id=?`).run(...vals, req.params.id);
