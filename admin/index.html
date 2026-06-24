@@ -2114,10 +2114,12 @@
 
   /* ── Kliks instalados ── */
   async function loadKliks() {
-    const listEl   = $('kliks-list');
-    const kitsEl   = $('kits-extra-list');
-    if (listEl)  listEl.innerHTML  = '<div class="k-loading">Cargando…</div>';
-    if (kitsEl)  kitsEl.innerHTML  = '<div class="k-loading">Cargando…</div>';
+    const listEl    = $('kliks-list');
+    const kitsEl    = $('kits-extra-list');
+    const kitsMainEl = $('kits-main-list');
+    if (listEl)     listEl.innerHTML     = '<div class="k-loading">Cargando…</div>';
+    if (kitsEl)     kitsEl.innerHTML     = '<div class="k-loading">Cargando…</div>';
+    if (kitsMainEl) kitsMainEl.innerHTML = '<div class="k-loading">Cargando…</div>';
 
     // Kliks
     try {
@@ -2157,12 +2159,10 @@
     // Kits extras instalados
     try {
       const kits = await api('GET', '/admin/api/kits');
-      if (!kitsEl) return;
       const extras = (kits || []).filter(k => !['agenda','noticias','banners','popup','notificaciones','telegram'].includes(k.id));
-      if (!extras.length) {
-        kitsEl.innerHTML = '<p style="color:var(--k-text2);font-size:13px;padding:8px 0">No hay Kits externos instalados.</p>';
-      } else {
-        kitsEl.innerHTML = `<table class="k-table">
+      const kitsHTML = !extras.length
+        ? '<p style="color:var(--k-text2);font-size:13px;padding:8px 0">No hay Kits externos instalados.</p>'
+        : `<table class="k-table">
           <thead><tr><th>Kit</th><th>Versión</th><th>Estado</th><th style="width:100px">Acciones</th></tr></thead>
           <tbody>${extras.map(k => `
             <tr>
@@ -2176,8 +2176,13 @@
             </tr>`).join('')}
           </tbody>
         </table>`;
-      }
-    } catch(e) { if (kitsEl) kitsEl.innerHTML = `<p style="color:var(--k-red);font-size:13px">${esc(e.message)}</p>`; }
+      if (kitsEl)     kitsEl.innerHTML     = kitsHTML;
+      if (kitsMainEl) kitsMainEl.innerHTML = kitsHTML;
+    } catch(e) {
+      const msg = `<p style="color:var(--k-red);font-size:13px">${esc(e.message)}</p>`;
+      if (kitsEl)     kitsEl.innerHTML     = msg;
+      if (kitsMainEl) kitsMainEl.innerHTML = msg;
+    }
   }
 
   async function activarKlik(id, nombre) {
