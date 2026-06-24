@@ -15,7 +15,7 @@
 
 set -uo pipefail
 
-KORE_RELEASE_URL="https://github.com/nadia-labs/kore/releases/download/v2.0.0/kore-motor-2.0.0.zip"
+KORE_RELEASE_URL="https://github.com/nadia-labs/kore/archive/refs/heads/main.tar.gz"
 
 GRN='\033[0;32m'; YLW='\033[1;33m'; RED='\033[0;31m'
 CYN='\033[0;36m'; BLD='\033[1m'; NC='\033[0m'
@@ -29,7 +29,7 @@ die()  { echo -e "\n  ${RED}✕  ERROR: $*${NC}\n" >&2; exit 1; }
 # ══════════════════════════════════════════════
 #  BANNER
 # ══════════════════════════════════════════════
-clear
+clear 2>/dev/null || true
 echo ""
 echo -e "${BLD}${CYN}"
 echo "  ██╗  ██╗ ██████╗ ██████╗ ███████╗"
@@ -94,32 +94,33 @@ if [ ! -f "${APP_DIR}/server.js" ]; then
   warn "Motor no encontrado. Descargando desde GitHub…"
 
   # Instalar dependencias de descarga si faltan
-  command -v curl   &>/dev/null || sudo apt-get install -y -qq curl
-  command -v unzip  &>/dev/null || sudo apt-get install -y -qq unzip
+  command -v curl &>/dev/null || sudo apt-get install -y -qq curl
+  command -v tar  &>/dev/null || sudo apt-get install -y -qq tar
 
   # Crear directorio
   sudo mkdir -p "${APP_DIR}"
   sudo chown "$(whoami):$(whoami)" "${APP_DIR}"
 
-  # Descargar y extraer
-  TMP_ZIP="/tmp/kore-motor.zip"
-  curl -fsSL "${KORE_RELEASE_URL}" -o "${TMP_ZIP}" \
+  # Descargar tarball del branch main (siempre la versión más reciente)
+  TMP_TAR="/tmp/kore-motor.tar.gz"
+  curl -fsSL "${KORE_RELEASE_URL}" -o "${TMP_TAR}" \
     || die "No se pudo descargar el Motor desde GitHub. Verifica tu conexión."
 
-  unzip -o "${TMP_ZIP}" -d "${APP_DIR}" \
+  # Extraer — GitHub empaqueta en kore-main/boilerplate-2.0/
+  # Buscar la subcarpeta que contiene server.js y mover al destino
+  TMP_DIR="/tmp/kore-extract-$$"
+  mkdir -p "${TMP_DIR}"
+  tar -xzf "${TMP_TAR}" -C "${TMP_DIR}" \
     || die "No se pudo extraer el Motor."
 
-  # Si el zip extrae en una subcarpeta, mover contenido al raíz
-  EXTRACTED=$(find "${APP_DIR}" -maxdepth 1 -mindepth 1 -type d | head -1)
-  if [ -n "${EXTRACTED}" ] && [ ! -f "${APP_DIR}/server.js" ]; then
-    mv "${EXTRACTED}"/* "${APP_DIR}/" 2>/dev/null || true
-    rmdir "${EXTRACTED}" 2>/dev/null || true
-  fi
+  SRC=$(find "${TMP_DIR}" -maxdepth 3 -name "server.js" | head -1 | xargs dirname 2>/dev/null)
+  [ -z "${SRC}" ] && die "server.js no encontrado en el tarball. Revisa el repositorio."
 
-  rm -f "${TMP_ZIP}"
+  cp -r "${SRC}/." "${APP_DIR}/"
+  rm -rf "${TMP_DIR}" "${TMP_TAR}"
 
   [ -f "${APP_DIR}/server.js" ] && ok "Motor descargado en ${APP_DIR}" \
-    || die "server.js no encontrado tras extracción. Revisa el contenido del zip."
+    || die "server.js no encontrado tras extracción."
 else
   ok "Motor ya presente en ${APP_DIR}"
 fi
