@@ -37,24 +37,33 @@ Kore es un framework CMS/PWA que combina la liviandad de un stack minimalista (N
 | Auth | bcrypt + cookie-session |
 | Uploads | Multer (memory storage) |
 
-## Instalación rápida
+## 📚 Instalación
 
-### Opción 1: Script automático (recomendado para producción)
+### 🚀 **[Ver Guía de Instalación Definitiva →](./GUIA-INSTALACION-DEFINITIVA.md)**
+
+**Instalación en 3 pasos (3-5 minutos):**
 
 ```bash
+# 1. Conectar al servidor VPS
+ssh usuario@tu-servidor
+
+# 2. Ejecutar instalador automático
 bash <(curl -fsSL https://raw.githubusercontent.com/nadia-labs/kore/main/kinstall.sh)
+
+# 3. Abrir en navegador (usa TU DOMINIO, no localhost)
+https://tudominio.com/setup
 ```
 
-El script instala Node.js 20, PM2, Nginx, descarga el Motor y configura todo. 
+**⚠️ Problemas comunes ya solucionados en v2.1:**
+- ✅ Error 429 "Too Many Requests" → Corregido
+- ✅ Confusión localhost vs servidor remoto → Documentado
+- ✅ Rate limiting nginx → Optimizado
 
-**⚠️ IMPORTANTE:** Después de que kInstall termine, debes acceder usando **tu dominio**, NO localhost:
+**📖 [Troubleshooting completo en la guía](./GUIA-INSTALACION-DEFINITIVA.md#-troubleshooting)**
 
-```
-https://tu-dominio.cl/setup
-```
+---
 
-❌ **NO USES:** `http://localhost:3001` (solo funciona en instalación local)  
-✅ **USA:** Tu dominio real o IP pública del servidor
+### Instalación local (desarrollo)
 
 ### Opción 2: Manual (desarrollo)
 
