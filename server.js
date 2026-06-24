@@ -365,8 +365,7 @@ async function claudeVision(imageBuffer, prompt) {
 // ══════════════════════════════════════════════
 
 const app = express();
-const kitsRouter = express.Router();     // montado antes del catch-all SPA
-app.use('/api/kit', kitsRouter);
+const kitsRouter = express.Router();     // montado después de session, antes del catch-all SPA
 app.set('trust proxy', 1);
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -375,6 +374,7 @@ app.use(cookieSession({
   maxAge: 8 * 60 * 60 * 1000,
   httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict'
 }));
+app.use('/api/kit', kitsRouter);         // después de session para que requireAdmin funcione
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ══════════════════════════════════════════════
@@ -1263,8 +1263,18 @@ app.post('/admin/api/kliks/install', requireKapitan, uploadZip.single('archivo')
   fs.writeFileSync(path.join(destDir, 'klik.json'),  JSON.stringify(klikJson, null, 2), 'utf8');
   fs.writeFileSync(path.join(destDir, 'index.html'), indexHtml, 'utf8');
 
-  console.log(`[Kore] ✓ Klik instalado: ${klikJson.nombre} (${klikJson.id})`);
-  res.json({ ok: true, id: klikJson.id, nombre: klikJson.nombre });
+  // Auto-activar: copiar al public/ y actualizar aktivo.json
+  const publicDir = path.join(__dirname, 'public');
+  fs.mkdirSync(publicDir, { recursive: true });
+  fs.copyFileSync(path.join(destDir, 'index.html'), path.join(publicDir, 'index.html'));
+  fs.writeFileSync(path.join(__dirname, 'kliks', 'aktivo.json'), JSON.stringify({
+    id: klikJson.id, nombre: klikJson.nombre,
+    version: klikJson.version || '1.0', activado_en: new Date().toISOString()
+  }, null, 2), 'utf8');
+  _klik.mtime = 0;
+
+  console.log(`[Kore] ✓ Klik instalado y activado: ${klikJson.nombre} (${klikJson.id})`);
+  res.json({ ok: true, id: klikJson.id, nombre: klikJson.nombre, activado: true });
 });
 
 app.post('/admin/api/kliks/:id/activar', requireKapitan, (req, res) => {
@@ -1356,20 +1366,48 @@ function registrarKit(kit) {
     f ? res.json(f) : res.status(404).json({ error: 'No encontrado' });
   });
 
-  kitsRouter.post(base, requireAdmin, (req, res) => {
-    const id = uid();
-    const campos = kit.campos.filter(c => (c.nombre||c.id) !== 'id').map(c => c.nombre||c.id);
-    const vals   = campos.map(c => req.body[c] ?? null);
-    db.prepare(`INSERT INTO kit_${kit.id} (id,${campos.join(',')}) VALUES (?,${campos.map(()=>'?').join(',')})`).run(id, ...vals);
-    res.json({ ok:true, id });
+  kitsRouter.post(base, requireAdmin, upload.any(), async (req, res) => {
+    try {
+      const id = uid();
+      const campos = kit.campos.filter(c => (c.nombre||c.id) !== 'id');
+      const vals = [];
+      const names = [];
+      for (const c of campos) {
+        const key = c.nombre||c.id;
+        names.push(key);
+        const file = req.files?.find(f => f.fieldname === key);
+        if (file) {
+          const dest = path.join(__dirname, 'uploads', 'kits', id, `${key}.webp`);
+          await procesarImagen(file.buffer, dest);
+          vals.push(`/uploads/kits/${id}/${key}.webp`);
+        } else {
+          vals.push(req.body[key] ?? null);
+        }
+      }
+      db.prepare(`INSERT INTO kit_${kit.id} (id,${names.join(',')}) VALUES (?,${names.map(()=>'?').join(',')})`).run(id, ...vals);
+      res.json({ ok:true, id });
+    } catch(e) { res.status(500).json({ error: e.message }); }
   });
 
-  kitsRouter.patch(`${base}/:id`, requireAdmin, (req, res) => {
-    const campos = kit.campos.filter(c => (c.nombre||c.id) !== 'id').map(c => c.nombre||c.id);
-    const sets   = campos.map(c => `${c}=?`).join(',');
-    const vals   = campos.map(c => req.body[c] ?? null);
-    db.prepare(`UPDATE kit_${kit.id} SET ${sets},actualizado=datetime('now') WHERE id=?`).run(...vals, req.params.id);
-    res.json({ ok:true });
+  kitsRouter.patch(`${base}/:id`, requireAdmin, upload.any(), async (req, res) => {
+    try {
+      const rowId = req.params.id;
+      const campos = kit.campos.filter(c => (c.nombre||c.id) !== 'id');
+      const sets = []; const vals = [];
+      for (const c of campos) {
+        const key = c.nombre||c.id;
+        const file = req.files?.find(f => f.fieldname === key);
+        if (file) {
+          const dest = path.join(__dirname, 'uploads', 'kits', rowId, `${key}.webp`);
+          await procesarImagen(file.buffer, dest);
+          sets.push(`${key}=?`); vals.push(`/uploads/kits/${rowId}/${key}.webp`);
+        } else if (req.body[key] !== undefined) {
+          sets.push(`${key}=?`); vals.push(req.body[key] ?? null);
+        }
+      }
+      if (sets.length) db.prepare(`UPDATE kit_${kit.id} SET ${sets.join(',')},actualizado=datetime('now') WHERE id=?`).run(...vals, rowId);
+      res.json({ ok:true });
+    } catch(e) { res.status(500).json({ error: e.message }); }
   });
 
   kitsRouter.patch(`${base}/:id/toggle`, requireAdmin, (req, res) => {

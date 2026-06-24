@@ -1085,6 +1085,7 @@
   const SECTIONS_WITH_NEW = ['tiers','agenda','noticias','banners','usuarios'];
 
   function nav(section) {
+    if (section === 'kcostumizer') section = 'kconfig'; // alias — s-kcostumizer es estático, usar s-kconfig
     const prevId = S.customKit && !$(`s-${S.section}`) ? 's-kit-custom' : `s-${S.section}`;
     const prev = $(prevId);
     if (prev) prev.style.display = 'none';
@@ -2333,6 +2334,10 @@
       if (f.tipo === 'textarea' || f.tipo === 'texto_largo' || f.tipo === 'richtext') return `<div class="k-field k-full"><label class="k-label">${lbl}</label><textarea class="k-textarea" name="${key}">${esc(v)}</textarea></div>`;
       if (f.tipo === 'numero' || f.tipo === 'precio') return `<div class="k-field"><label class="k-label">${lbl}</label><input class="k-input" type="number" name="${key}" value="${esc(v)}"></div>`;
       if (f.tipo === 'date') return `<div class="k-field"><label class="k-label">${lbl}</label><input class="k-input" type="date" name="${key}" value="${esc(v)}"></div>`;
+      if (f.tipo === 'imagen') {
+        const preview = v ? `<img src="${esc(v)}" style="max-height:60px;max-width:120px;border-radius:4px;margin-bottom:4px;display:block">` : '';
+        return `<div class="k-field k-full"><label class="k-label">${lbl}</label>${preview}<input class="k-input" type="file" accept="image/*" name="${key}" data-img-field="1"><input type="hidden" name="${key}_existing" value="${esc(v)}"><small style="color:var(--k-text2);font-size:11px">Deja vacío para mantener imagen actual</small></div>`;
+      }
       if (f.tipo === 'select' && Array.isArray(f.opciones)) {
         const opts = f.opciones.map(o => typeof o === 'object'
           ? `<option value="${esc(o.valor)}" ${v===o.valor?'selected':''}>${esc(o.texto)}</option>`
@@ -2343,12 +2348,28 @@
     }).join('') + '</div>';
   }
 
+  function buildKitPayload() {
+    const form = $('k-modal').querySelector('form') || $('k-modal');
+    const hasImg = form.querySelector('[data-img-field]');
+    if (!hasImg) return readForm();
+    const fd = new FormData();
+    form.querySelectorAll('[name]').forEach(el => {
+      if (el.name.endsWith('_existing')) return; // skip hidden existing markers
+      if (el.type === 'file') {
+        if (el.files[0]) fd.append(el.name, el.files[0]);
+        // else send nothing — server keeps existing
+      } else {
+        fd.append(el.name, el.value ?? '');
+      }
+    });
+    return fd;
+  }
+
   function openNewCustomKit(kit) {
     openModal(`Nuevo — ${kit.titulo||kit.id}`, buildKitForm(kit, null), async () => {
       try {
         $('k-modal-save').disabled = true;
-        const fd = readForm();
-        await api('POST', `/api/kit/${kit.id}`, fd);
+        await api('POST', `/api/kit/${kit.id}`, buildKitPayload());
         closeModal(); flash('Registro creado'); loadCustomKit(kit);
       } catch(e) { flash(e.message,'err'); } finally { $('k-modal-save').disabled = false; }
     });
@@ -2364,7 +2385,7 @@
       openModal(`Editar — ${kit.titulo||kitId}`, buildKitForm(kit, r), async () => {
         try {
           $('k-modal-save').disabled = true;
-          await api('PATCH', `/api/kit/${kitId}/${id}`, readForm());
+          await api('PATCH', `/api/kit/${kitId}/${id}`, buildKitPayload());
           closeModal(); flash('Actualizado'); loadCustomKit(kit);
         } catch(e) { flash(e.message,'err'); } finally { $('k-modal-save').disabled = false; }
       });
