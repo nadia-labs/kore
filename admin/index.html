@@ -640,6 +640,8 @@
         Kliks
       </button>
 
+      <div id="kitsNavDynamic"></div>
+
       <!-- AJUSTES -->
       <div class="k-nav-group">Ajustes</div>
       <button class="k-nav-btn" data-section="usuarios">
@@ -1083,9 +1085,11 @@
   const SECTIONS_WITH_NEW = ['tiers','agenda','noticias','banners','usuarios'];
 
   function nav(section) {
-    const prev = $(`s-${S.section}`);
+    const prevId = S.customKit && !$(`s-${S.section}`) ? 's-kit-custom' : `s-${S.section}`;
+    const prev = $(prevId);
     if (prev) prev.style.display = 'none';
-    const next = $(`s-${section}`);
+    const isCustomKit = S.customKit && S.customKit.id === section && !$(`s-${section}`);
+    const next = isCustomKit ? $('s-kit-custom') : $(`s-${section}`);
     if (next) next.style.display = '';
     document.querySelectorAll('.k-nav-btn').forEach(b => {
       b.classList.toggle('is-active', b.dataset.section === section);
