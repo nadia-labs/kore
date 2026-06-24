@@ -1092,7 +1092,15 @@ app.get('/noticia/:slug', (req, res) => {
 // PATCH /admin/api/kits/:id/toggle   → activa / desactiva un Kit instalado
 
 app.get('/admin/api/kits', requireAuth, (req, res) => {
-  res.json(db.prepare('SELECT * FROM kits_instalados ORDER BY instalado_en DESC').all());
+  const kits = db.prepare('SELECT * FROM kits_instalados ORDER BY instalado_en DESC').all();
+  const kitsDir = path.join(__dirname, 'kits');
+  const enriched = kits.map(k => {
+    try {
+      const kitJson = JSON.parse(fs.readFileSync(path.join(kitsDir, `${k.id}.kit.json`), 'utf8'));
+      return { ...k, campos: kitJson.campos || [], titulo: kitJson.nombre || k.nombre };
+    } catch { return { ...k, titulo: k.nombre }; }
+  });
+  res.json(enriched);
 });
 
 app.post('/admin/api/kits/install', requireKapitan, uploadZip.single('archivo'), (req, res) => {

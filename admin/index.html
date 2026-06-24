@@ -2278,7 +2278,7 @@
         btn.className = 'k-nav-btn';
         btn.dataset.section = kit.id;
         btn.dataset.kitId   = kit.id;
-        btn.innerHTML = `<svg viewBox="0 0 16 16" fill="currentColor"><path d="M0 1.5A.5.5 0 0 1 .5 1h5a.5.5 0 0 1 .5.5v2A.5.5 0 0 1 5.5 4h-5a.5.5 0 0 1-.5-.5v-2zm0 5A.5.5 0 0 1 .5 6h7a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-2zm0 5A.5.5 0 0 1 .5 11h5a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1-.5-.5v-2z"/></svg>${esc(kit.titulo||kit.id)}`;
+        btn.innerHTML = `<svg viewBox="0 0 16 16" fill="currentColor"><path d="M0 1.5A.5.5 0 0 1 .5 1h5a.5.5 0 0 1 .5.5v2A.5.5 0 0 1 5.5 4h-5a.5.5 0 0 1-.5-.5v-2zm0 5A.5.5 0 0 1 .5 6h7a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5v-2zm0 5A.5.5 0 0 1 .5 11h5a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1-.5-.5v-2z"/></svg>${esc(kit.titulo||kit.nombre||kit.id)}`;
         btn.onclick = () => {
           S.customKit = kit;
           SECTION_TITLES[kit.id] = kit.titulo || kit.id;
@@ -2290,6 +2290,8 @@
   }
 
   /* ── Kit dinámico — tabla ── */
+  const fid = f => f.nombre || f.id;
+
   async function loadCustomKit(kit) {
     const loader = $('loading-kit-custom');
     const tbl    = $('table-kit-custom');
@@ -2297,15 +2299,15 @@
     try {
       const data = await api('GET', `/api/kit/${kit.id}`);
       if (!data) return;
-      const fields = (kit.campos || []).slice(0,4);
-      tbl.querySelector('thead').innerHTML = '<tr>' + fields.map(f=>`<th>${esc(f.etiqueta||f.label||f.id)}</th>`).join('') + '<th style="width:88px">Acciones</th></tr>';
+      const fields = (kit.campos || []).filter(f => !f.pk).slice(0,4);
+      tbl.querySelector('thead').innerHTML = '<tr>' + fields.map(f=>`<th>${esc(f.etiqueta||f.label||fid(f))}</th>`).join('') + '<th style="width:88px">Acciones</th></tr>';
       const tbody = tbl.querySelector('tbody');
       if (!data.length) {
         tbody.innerHTML = `<tr><td class="k-table-empty" colspan="${fields.length+1}">Sin registros</td></tr>`;
       } else {
         tbody.innerHTML = data.map(r => `
           <tr>
-            ${fields.map(f => `<td>${f.tipo==='toggle'?badge(r[f.id]):esc(r[f.id]??'')}</td>`).join('')}
+            ${fields.map(f => `<td>${f.tipo==='toggle'?badge(r[fid(f)]):esc(r[fid(f)]??'')}</td>`).join('')}
             <td><div class="k-row-actions">
               <button class="k-icon-btn" onclick="window._kKitEdit('${kit.id}','${r.id}')">Editar</button>
               <button class="k-icon-btn k-icon-btn--del" onclick="window._kKitDel('${kit.id}','${r.id}')">Eliminar</button>
@@ -2318,20 +2320,21 @@
 
   function buildKitForm(kit, r) {
     r = r || {};
-    return '<div class="k-form-grid">' + (kit.campos||[]).map(f => {
-      const v = r[f.id] ?? '';
-      const lbl = esc(f.etiqueta||f.label||f.id);
-      if (f.tipo === 'toggle') return `<div class="k-field"><label class="k-label">${lbl}</label><select class="k-select" name="${f.id}"><option value="1" ${v?'selected':''}>Sí / Activo</option><option value="0" ${!v?'selected':''}>No / Inactivo</option></select></div>`;
-      if (f.tipo === 'textarea' || f.tipo === 'texto_largo' || f.tipo === 'richtext') return `<div class="k-field k-full"><label class="k-label">${lbl}</label><textarea class="k-textarea" name="${f.id}">${esc(v)}</textarea></div>`;
-      if (f.tipo === 'numero' || f.tipo === 'precio') return `<div class="k-field"><label class="k-label">${lbl}</label><input class="k-input" type="number" name="${f.id}" value="${esc(v)}"></div>`;
-      if (f.tipo === 'date') return `<div class="k-field"><label class="k-label">${lbl}</label><input class="k-input" type="date" name="${f.id}" value="${esc(v)}"></div>`;
+    return '<div class="k-form-grid">' + (kit.campos||[]).filter(f => !f.pk).map(f => {
+      const key = fid(f);
+      const v = r[key] ?? '';
+      const lbl = esc(f.etiqueta||f.label||key);
+      if (f.tipo === 'toggle') return `<div class="k-field"><label class="k-label">${lbl}</label><select class="k-select" name="${key}"><option value="1" ${v?'selected':''}>Sí / Activo</option><option value="0" ${!v?'selected':''}>No / Inactivo</option></select></div>`;
+      if (f.tipo === 'textarea' || f.tipo === 'texto_largo' || f.tipo === 'richtext') return `<div class="k-field k-full"><label class="k-label">${lbl}</label><textarea class="k-textarea" name="${key}">${esc(v)}</textarea></div>`;
+      if (f.tipo === 'numero' || f.tipo === 'precio') return `<div class="k-field"><label class="k-label">${lbl}</label><input class="k-input" type="number" name="${key}" value="${esc(v)}"></div>`;
+      if (f.tipo === 'date') return `<div class="k-field"><label class="k-label">${lbl}</label><input class="k-input" type="date" name="${key}" value="${esc(v)}"></div>`;
       if (f.tipo === 'select' && Array.isArray(f.opciones)) {
         const opts = f.opciones.map(o => typeof o === 'object'
           ? `<option value="${esc(o.valor)}" ${v===o.valor?'selected':''}>${esc(o.texto)}</option>`
           : `<option value="${esc(o)}" ${v===o?'selected':''}>${esc(o)}</option>`).join('');
-        return `<div class="k-field"><label class="k-label">${lbl}</label><select class="k-select" name="${f.id}">${opts}</select></div>`;
+        return `<div class="k-field"><label class="k-label">${lbl}</label><select class="k-select" name="${key}">${opts}</select></div>`;
       }
-      return `<div class="k-field"><label class="k-label">${lbl}</label><input class="k-input" name="${f.id}" value="${esc(v)}"></div>`;
+      return `<div class="k-field"><label class="k-label">${lbl}</label><input class="k-input" name="${key}" value="${esc(v)}"></div>`;
     }).join('') + '</div>';
   }
 
