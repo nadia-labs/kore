@@ -314,8 +314,8 @@ const uploadZip = multer({
   limits: { fileSize: 50 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     const name = file.originalname.toLowerCase();
-    if (name.endsWith('.zip')) return cb(null, true);
-    const ok = ['application/zip','application/x-zip-compressed','application/octet-stream'].includes(file.mimetype);
+    if (name.endsWith('.zip') || name.endsWith('.kit.json') || name.endsWith('.json')) return cb(null, true);
+    const ok = ['application/zip','application/x-zip-compressed','application/octet-stream','application/json','text/plain'].includes(file.mimetype);
     cb(null, ok);
   }
 });
