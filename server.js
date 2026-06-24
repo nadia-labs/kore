@@ -265,7 +265,8 @@ function registrarFallo(ip) {
 
 function requireAuth(req, res, next) {
   if (req.session?.usuario) return next();
-  if (req.path.startsWith('/api/')) return res.status(401).json({ error: 'No autorizado' });
+  if (req.path.includes('/api/') || req.xhr || req.headers.accept?.includes('application/json'))
+    return res.status(401).json({ error: 'No autorizado' });
   res.redirect('/admin/login');
 }
 function requireKapitan(req, res, next) {
