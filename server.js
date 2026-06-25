@@ -1352,7 +1352,7 @@ function registrarKit(kit) {
   kitsRouter.get(base, (req, res) => {
     const { q, activo, limit } = req.query;
     let filas = db.prepare(`SELECT * FROM kit_${kit.id} ORDER BY ${kit.ordenar_por || 'creado_en'} DESC`).all();
-    if (activo !== undefined) filas = filas.filter(f => String(f.activo) === '1');
+    if (activo !== undefined) filas = filas.filter(f => Number(f.activo) === 1);
     if (q && kit.busqueda_en?.length) {
       const ql = q.toLowerCase();
       filas = filas.filter(f => kit.busqueda_en.some(campo => String(f[campo]||'').toLowerCase().includes(ql)));
