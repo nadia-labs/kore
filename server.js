@@ -548,7 +548,7 @@ app.post('/admin/login', async (req, res) => {
 
 app.post('/admin/logout', (req, res) => { req.session = null; res.json({ ok: true }); });
 app.get('/admin/session', requireAuth, (req, res) => res.json({ usuario: req.session.usuario, nombre: req.session.nombre, rol: req.session.rol }));
-app.get('/admin', requireAuth, (req, res) => res.sendFile(path.join(__dirname, 'admin', 'index.html')));
+app.get('/admin', requireAuth, (req, res) => { res.set('Cache-Control', 'no-store'); res.sendFile(path.join(__dirname, 'admin', 'index.html')); });
 app.get('/admin/login', (req, res) => {
   if (req.session?.usuario) return res.redirect('/admin');
   res.sendFile(path.join(__dirname, 'admin', 'login.html'));
