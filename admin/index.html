@@ -2017,13 +2017,13 @@
     catch(e) { flash(e.message, 'err'); }
   }
 
-  function mostrarKonfigPreview(previewId, url) {
+  window.mostrarKonfigPreview = function(previewId, url) {
     const el = document.getElementById(previewId) || $(previewId);
     if (!el || !url) return;
     el.innerHTML = `<img src="${esc(url)}" style="max-width:100%;max-height:100%;object-fit:contain" onerror="this.parentElement.innerHTML='<span style=font-size:10px;color:var(--k-red)>Error</span>'">`;
   }
 
-  async function uploadKonfigImagen(fileInput, campoNombre, previewId) {
+  window.uploadKonfigImagen = async function(fileInput, campoNombre, previewId) {
     if (!fileInput.files[0]) return;
     const btn = fileInput.parentElement?.querySelector('button');
     if (btn) { btn.disabled = true; btn.textContent = 'Subiendo…'; }
