@@ -1953,11 +1953,11 @@
       if (el.dataset.array || el.dataset.tipo === 'lista_texto') return; // se manejan abajo
       const parts = el.name.split('.');
       if (parts.length === 1) {
-        fd[parts[0]] = el.value;
+        if (el.value !== '') fd[parts[0]] = el.value;
       } else if (parts.length === 2) {
         // objeto_simple: "redes.instagram"
         if (!fd[parts[0]] || typeof fd[parts[0]] !== 'object') fd[parts[0]] = {};
-        fd[parts[0]][parts[1]] = el.value;
+        if (el.value !== '') fd[parts[0]][parts[1]] = el.value;
       }
     });
 
@@ -2025,21 +2025,23 @@
 
   async function uploadKonfigImagen(fileInput, campoNombre, previewId) {
     if (!fileInput.files[0]) return;
-    const btn = fileInput.closest('label');
-    if (btn) { btn.style.opacity = '0.5'; btn.style.pointerEvents = 'none'; }
+    const btn = fileInput.parentElement?.querySelector('button');
+    if (btn) { btn.disabled = true; btn.textContent = 'Subiendo…'; }
     try {
       const fd = new FormData();
       fd.append('imagen', fileInput.files[0]);
       fd.append('tipo', 'config');
-      const r = await api('POST', '/admin/api/upload', fd);
-      if (!r?.url) throw new Error('Upload sin URL');
+      const res = await fetch('/admin/api/upload', { method:'POST', credentials:'same-origin', body: fd });
+      if (res.status === 401) { flash('Sesión expirada — recarga la página', 'err'); return; }
+      const r = await res.json().catch(() => ({}));
+      if (!res.ok || !r?.url) throw new Error(r?.error || `Error HTTP ${res.status}`);
       const inputCampo = document.querySelector(`[name="${campoNombre}"]`);
       if (inputCampo) inputCampo.value = r.url;
       mostrarKonfigPreview(previewId, r.url);
       flash('Imagen subida ✓');
-    } catch(e) { flash(`Error subiendo imagen: ${e.message}`, 'err'); }
+    } catch(e) { flash(`Error al subir imagen: ${e.message}`, 'err'); }
     finally {
-      if (btn) { btn.style.opacity = ''; btn.style.pointerEvents = ''; }
+      if (btn) { btn.disabled = false; btn.textContent = '↑ Subir imagen'; }
       fileInput.value = '';
     }
   }
