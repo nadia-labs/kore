@@ -1796,15 +1796,16 @@
         break;
       }
       case 'imagen': {
-        const pid = `kprev-${fName.replace(/\./g,'_')}`;
+        const pid  = `kprev-${fName.replace(/\./g,'_')}`;
+        const fiid = `kfile-${fName.replace(/\./g,'_')}`;
         inner = `<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
           <div id="${pid}" style="width:80px;height:48px;background:var(--k-bg3);border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
             <span style="font-size:10px;color:var(--k-text3)">Vista previa</span></div>
           <div style="flex:1;min-width:200px">
-            <input class="k-input" name="${esc(fName)}" value="${esc(String(val))}" ${ph} style="margin-bottom:6px" oninput="mostrarKonfigPreview('${pid}',this.value)">
-            <label class="k-btn" style="cursor:pointer;font-size:12px;padding:5px 12px;display:inline-block">Subir imagen
-              <input type="file" accept="image/*" style="display:none" onchange="uploadKonfigImagen(this,'${esc(fName)}','${pid}')">
-            </label></div></div>`;
+            <input class="k-input" name="${esc(fName)}" id="kinput-${fiid}" value="${esc(String(val))}" ${ph} style="margin-bottom:6px" oninput="mostrarKonfigPreview('${pid}',this.value)">
+            <input type="file" id="${fiid}" accept="image/*" style="display:none" onchange="uploadKonfigImagen(this,'${esc(fName)}','${pid}')">
+            <button type="button" class="k-btn" style="font-size:12px;padding:5px 12px" onclick="document.getElementById('${fiid}').click()">↑ Subir imagen</button>
+          </div></div>`;
         break;
       }
       case 'lista_texto': {
