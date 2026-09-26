@@ -230,11 +230,11 @@ def main():
                 elif pais in NACIONALES and re.search(NACIONALES[pais], nombre_base, re.I) \
                         and sub in ("Otros", "Entretenimiento"):
                     s = "Nacionales"
-                destinos.append(f"{pn} | {s}")
+                destinos.append(f"{pn}: {s}")
                 if sub == "Motor":
                     destinos.append("Fórmula 1 y Motor")
             elif pais in PAISES_LATAM:
-                destinos.append(f"Latinoamérica | {PAISES_LATAM[pais]}")
+                destinos.append(f"Latinoamérica: {PAISES_LATAM[pais]}")
                 if sub == "Motor":
                     destinos.append("Fórmula 1 y Motor")
                 elif sub in ("Deportes",):
@@ -252,16 +252,16 @@ def main():
     os.makedirs(SALIDA, exist_ok=True)
 
     def ordenar_grupos(prefijo):
-        grupos = [g for g in carpetas if g.startswith(prefijo + " | ")]
-        return sorted(grupos, key=lambda g: (ORDEN_SUB.index(g.split(" | ")[1])
-                                             if g.split(" | ")[1] in ORDEN_SUB else 99))
+        grupos = [g for g in carpetas if g.startswith(prefijo + ": ")]
+        return sorted(grupos, key=lambda g: (ORDEN_SUB.index(g.split(": ")[1])
+                                             if g.split(": ")[1] in ORDEN_SUB else 99))
 
     bloques = {
         "chile": ordenar_grupos("Chile"),
         "argentina": ordenar_grupos("Argentina"),
         "espana": ordenar_grupos("España"),
         "mexico": ordenar_grupos("México"),
-        "latam": sorted(g for g in carpetas if g.startswith("Latinoamérica | ")),
+        "latam": sorted(g for g in carpetas if g.startswith("Latinoamérica: ")),
         "tematicos": [t for t, _, _ in TEMATICOS if t in carpetas],
     }
 
