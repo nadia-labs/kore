@@ -4,7 +4,7 @@
 
 [![Kore](https://img.shields.io/badge/Kore-2.0-00C8FF?style=flat-square)](https://github.com/nadia-labs/kore)
 [![Node](https://img.shields.io/badge/Node.js-≥20-339933?style=flat-square)](https://nodejs.org)
-[![License](https://img.shields.io/badge/License-UNLICENSED-red?style=flat-square)]()
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue?style=flat-square)](./LICENSE)
 
 ---
 
@@ -182,7 +182,11 @@ sudo nginx -t && sudo nginx -s reload
 
 ## Licencia
 
-UNLICENSED — Propiedad de nadIA Labs.
+Kore es software de código abierto bajo la [Licencia Apache 2.0](./LICENSE). Puedes usarlo, modificarlo y distribuirlo, también con fines comerciales, conservando los avisos de copyright y el archivo [NOTICE](./NOTICE).
+
+La licencia no concede derechos sobre las marcas "Kore", "kAdmin", "Klik", "Kit" ni el logo K, que pertenecen a nadIA Comunicaciones SpA.
+
+Para reportar vulnerabilidades, lee [SECURITY.md](./SECURITY.md).
 
 ---
 

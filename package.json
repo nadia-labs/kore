@@ -32,7 +32,7 @@
     "nadia"
   ],
   "author": "nadIA Labs <hola@nadia.cl>",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "private": true,
   "devDependencies": {
     "eslint": "^9.39.4",
