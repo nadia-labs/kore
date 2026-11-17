@@ -1,22 +1,24 @@
-# Política de seguridad
+# Security Policy
 
-## Versiones con soporte
+## Supported versions
 
-| Versión | Soporte |
+| Version | Supported |
 |---|---|
-| 2.x | Sí |
+| 2.x | Yes |
 | 1.x | No |
 
-## Cómo reportar una vulnerabilidad
+## Reporting a vulnerability
 
-No abras un issue público. Escribe a **hola@nadialabs.cl** con el asunto **"[Seguridad] Kore"** e incluye:
+Please don't open a public issue. Email **contacto@nadialabs.cl** with the subject **"[Seguridad] Kore"** and include:
 
-- la versión de Kore y del Klik o Kit afectado;
-- los pasos para reproducir el problema;
-- el impacto que observaste.
+- the version of Kore and of the affected Klik or Kit;
+- steps to reproduce the problem;
+- the impact you observed.
 
-Respondemos el acuse de recibo en un máximo de 5 días hábiles. Cuando el arreglo esté publicado, te daremos crédito en el CHANGELOG si así lo quieres.
+We acknowledge reports within 5 business days. Once the fix is released, we'll credit you in the CHANGELOG if you'd like.
 
-## Alcance
+Reports in English or Spanish are welcome.
 
-Motor (`server.js`), kAdmin (`admin/`), Kliks oficiales (`kliks/`), Kits oficiales (`kits/`), `kinstall.sh` y `nginx.conf.template`.
+## Scope
+
+The Motor (`server.js`), kAdmin (`admin/`), official Kliks (`kliks/`), official Kits (`kits/`), `kinstall.sh` and `nginx.conf.template`.
