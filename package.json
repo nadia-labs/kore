@@ -16,14 +16,14 @@
     "format": "prettier --write \"**/*.{js,json,html,css,md}\" --ignore-path .gitignore"
   },
   "dependencies": {
-    "adm-zip": "^0.5.16",
-    "bcrypt": "^5.1.0",
+    "adm-zip": "^0.6.1",
+    "bcrypt": "^6.0.0",
     "better-sqlite3": "^9.0.0",
     "cookie-session": "^2.1.0",
     "dotenv": "^16.0.0",
     "express": "^4.18.0",
-    "multer": "1.4.5-lts.1",
-    "sharp": "^0.33.0"
+    "multer": "^2.5.0",
+    "sharp": "^0.35.5"
   },
   "keywords": [
     "kore",

@@ -1,10 +1,14 @@
 # KORE — Web App Framework
 
-> Framework ligero para construir web apps y PWAs con IA integrada. Node.js + Express + SQLite. Sin WordPress, sin bloat.
+> **La alternativa a WordPress más liviana, segura y con IA integrada, que funciona en cualquier servidor.**
+>
+> Framework de código abierto para crear sitios y aplicaciones web (PWA) con panel de administración. Node.js + Express + SQLite, 8 dependencias en producción, sin PHP y sin plugins ejecutables. Hecho en Antofagasta, Chile · [kore.nadialabs.cl](https://kore.nadialabs.cl)
 
 [![Kore](https://img.shields.io/badge/Kore-2.0-00C8FF?style=flat-square)](https://github.com/nadia-labs/kore)
 [![Node](https://img.shields.io/badge/Node.js-≥20-339933?style=flat-square)](https://nodejs.org)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue?style=flat-square)](./LICENSE)
+
+**English:** Kore is an open-source, AI-native framework for building lightweight, secure web apps and PWAs with a mobile-first admin panel. It runs on Node.js 20 and SQLite with 8 production dependencies, no PHP and no executable plugins: features are added through declarative `.kit.json` files. It installs with a single command on any server. Documentation is currently in Spanish; English docs are on the roadmap. Contributions welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ---
 
@@ -39,7 +43,7 @@ Kore es un framework CMS/PWA que combina la liviandad de un stack minimalista (N
 
 ## 📚 Instalación
 
-### 🚀 **[Ver Guía de Instalación Definitiva →](./GUIA-INSTALACION-DEFINITIVA.md)**
+### 🚀 **[Ver Guía de Instalación Definitiva →](./docs/guia-de-instalacion.md)**
 
 **Instalación en 3 pasos (3-5 minutos):**
 
@@ -59,7 +63,7 @@ https://tudominio.com/setup
 - ✅ Confusión localhost vs servidor remoto → Documentado
 - ✅ Rate limiting nginx → Optimizado
 
-**📖 [Troubleshooting completo en la guía](./GUIA-INSTALACION-DEFINITIVA.md#-troubleshooting)**
+**📖 [Troubleshooting completo en la guía](./docs/guia-de-instalacion.md#-troubleshooting)**
 
 ---
 
@@ -91,9 +95,8 @@ kore/
 │   ├── direktorio/        # Klik para directorios
 │   └── korporativo/       # Klik para sitios corporativos
 ├── kits/                  # Definiciones de Kits (.kit.json)
-├── scripts/
-│   ├── kinstall.sh        # Instalador de servidor
-│   └── deploy-timeline.sh # Deploy script
+├── docs/                  # Guía de instalación y soporte
+├── kinstall.sh            # Instalador de servidor
 ├── ecosystem.config.js    # Configuración PM2
 ├── backup.js              # Backup automático de DB
 ├── nginx.conf.template    # Template de configuración Nginx
@@ -166,7 +169,7 @@ npm run backup     # Backup manual de la base de datos
 
 **Causa:** Configuración restrictiva del rate limiting en Nginx (versión anterior: `rate=5r/m`).
 
-**Solución:** Actualizar configuración de Nginx a `rate=10r/s` y `burst=20`. Ver detalles completos en [SOLUCION-429.md](./SOLUCION-429.md).
+**Solución:** Actualizar configuración de Nginx a `rate=10r/s` y `burst=20`. Ver detalles completos en [docs/soporte/error-429.md](./docs/soporte/error-429.md).
 
 **Fix rápido en servidor activo:**
 ```bash
@@ -186,8 +189,8 @@ Kore es software de código abierto bajo la [Licencia Apache 2.0](./LICENSE). Pu
 
 La licencia no concede derechos sobre las marcas "Kore", "kAdmin", "Klik", "Kit" ni el logo K, que pertenecen a nadIA Comunicaciones SpA.
 
-Para reportar vulnerabilidades, lee [SECURITY.md](./SECURITY.md).
+Para reportar vulnerabilidades, lee [SECURITY.md](./SECURITY.md). Para contribuir, lee [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ---
 
-**Kore Framework** · [nadIA Labs](https://nadia.cl) · hola@nadia.cl
+**Kore Framework** · [nadIA Labs](https://nadialabs.cl) · hola@nadialabs.cl
