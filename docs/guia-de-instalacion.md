@@ -333,7 +333,7 @@ Una vez que kAdmin esté funcionando:
 - Activa Push Notifications, Telegram, etc.
 
 ### 4. Instalar Kits Externos
-- Descarga kits desde [kore.nadia.cl](https://kore.nadia.cl)
+- Descarga kits desde [kore.nadialabs.cl](https://kore.nadialabs.cl)
 - **kAdmin → Kits → + Instalar nuevo**
 
 ---

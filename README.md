@@ -1,31 +1,74 @@
 # KORE — Web App Framework
 
-> **La alternativa a WordPress más liviana, segura y con IA integrada, que funciona en cualquier servidor.**
+> **Kore: sitios y apps web livianos, seguros y autoadministrables, con IA integrada, para pequeños negocios, emprendedores y organizaciones.**
 >
-> Framework de código abierto para crear sitios y aplicaciones web (PWA) con panel de administración. Node.js + Express + SQLite, 8 dependencias en producción, sin PHP y sin plugins ejecutables. Hecho en Antofagasta, Chile · [kore.nadialabs.cl](https://kore.nadialabs.cl)
+> Kore es un framework chileno de código abierto, ya desarrollado y en producción, para crear sitios y aplicaciones web que el propio dueño administra desde su teléfono, sin PHP, sin plugins que ejecutan código y con un consumo de servidor mínimo. · [kore.nadialabs.cl](https://kore.nadialabs.cl)
 
 [![Kore](https://img.shields.io/badge/Kore-2.0-00C8FF?style=flat-square)](https://github.com/nadia-labs/kore)
 [![Node](https://img.shields.io/badge/Node.js-≥20-339933?style=flat-square)](https://nodejs.org)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue?style=flat-square)](./LICENSE)
 
-**English:** Kore is an open-source, AI-native framework for building lightweight, secure web apps and PWAs with a mobile-first admin panel. It runs on Node.js 20 and SQLite with 8 production dependencies, no PHP and no executable plugins: features are added through declarative `.kit.json` files. It installs with a single command on any server. Documentation is currently in Spanish; English docs are on the roadmap. Contributions welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md).
+**English:** Kore: lightweight, secure, self-managed websites and web apps with built-in AI, for small businesses, entrepreneurs and organizations. It's an open-source framework from Chile, already running in production, that owners manage from their phone — no PHP, no plugins running code, and under 110 MB of memory per app. Documentation is currently in Spanish; English docs are on the roadmap. Contributions welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+---
+
+## Para quién es
+
+- **Pequeños negocios y comercios:** una pastelería con su catálogo de tortas y un botón de WhatsApp para encargar.
+- **Emprendedores:** un taller que publica sus servicios y precios, y los cambia desde el teléfono.
+- **Clubes, asociaciones, juntas de vecinos y fundaciones:** horarios de entrenamiento, avisos o el registro de socios.
+- **Medios locales y organizadores de eventos:** un medio digital de la ciudad, o la agenda y el mapa de una feria.
+- **Desarrolladores y agencias** que hacen sitios para pymes y necesitan entregar algo que el cliente administre solo.
+
+## Por qué Kore
+
+**1. Los gestores de contenido tradicionales tienen un problema de arquitectura, no de edad.** WordPress (2003), Joomla (2005) y Drupal (2001) usan PHP, una base de datos MySQL aparte y plugins que ejecutan código con todos los permisos del sitio. El 21 de octubre de 2026, PHP publicó parches de emergencia para PHP2Shell (CVE-2026-109618 y CVE-2026-109619, CVSS 9,2): ejecución de código en el servidor sin autenticarse, en el propio PHP, incluso en un "Hola mundo"; actualizar WordPress no lo corrige. CybelAngel contó 2,24 millones de servidores PHP expuestos, el 59% en versiones que ya no reciben actualizaciones oficiales, y días después PHP avisó de una tercera vía (CVE-2026-115560), corregida el 19 de noviembre. Patchstack registró 11.334 vulnerabilidades en el ecosistema WordPress en 2025. El dueño de una panadería no puede defenderse de una falla en el lenguaje de programación; lo único que puede hacer es no depender de él. ([The Hacker News](https://thehackernews.com/2026/10/php-issues-emergency-patches-for-two.html) · [CybelAngel](https://cybelangel.com/blog/critical-php-rce-vulnerabilities-cve-2026-109618-and-cve-2026-109619/) · [php.net](https://www.php.net/archive/2026.php) · [Patchstack](https://patchstack.com/whitepaper/state-of-wordpress-security-in-2026/))
+
+**2. "Hoy cualquiera hace una web con IA": cierto, y ese es el punto.** Lovable, Bolt, v0, Replit o Base44 generan sitios a partir de una descripción. Si cualquiera puede crear un sitio, la pregunta es quién lo mantiene seguro y al día: lo que la IA genera desde cero es código nuevo en cada proyecto, que nadie revisa, rara vez trae un panel para el dueño y no se actualiza solo. Con Kore, el sitio o la app se hace con IA, pero con un marco seguro y autogestionable: la IA arma Kits (configuración, no código) sobre un núcleo probado que se actualiza para todos.
+
+**3. Un negocio pequeño no necesita un WordPress completo. Necesita cuatro cosas:**
+
+| Lo que necesita | Cómo lo resuelve Kore |
+|---|---|
+| Administrarlo solo | kAdmin desde el teléfono |
+| Que no lo hackeen | Sin PHP, Kits sin código: superficie de ataque mínima |
+| Gastar poco en servidor | Menos de 110 MB de memoria por app |
+| Crecer cuando lo necesite | Agregar un Kit, no rehacer el sitio |
+
+## Prueba en producción
+
+Diez sitios y apps reales funcionan en tres servidores gratuitos de 1 GB. Medición del 22 de noviembre de 2026, en servidores gratuitos de Oracle Cloud de 1 GB (956 MB). Cada app de Kore usa menos de 110 MB de memoria.
+
+| Servidor | Sitios y apps de Kore | Memoria disponible |
+|---|---|---|
+| Servidor 1 | RadarBencina, Transfiereme, nadialabs.cl, kore.nadialabs.cl | 372 MB de 956 MB |
+| Servidor 2 | RadarFarma, ExpoNav, MentorIA | 351 MB de 956 MB |
+| Servidor 3 | RadarNocturno, Timeline, CP Comunicaciones | 364 MB de 956 MB |
+
+## Hecho con Kore
+
+[RadarNocturno](https://radarnocturno.cl) · [RadarBencina](https://radarbencina.cl) · [RadarFarma](https://radarfarma.cl) · [Transfiereme](https://transfiereme.cl) · [ExpoNav](https://exponav.nadialabs.cl) · [Timeline](https://timeline.nadialabs.cl) · [MentorIA](https://mentoria.nadialabs.cl) · [nadialabs.cl](https://nadialabs.cl) · [CP Comunicaciones](https://cpcomunicaciones.nadialabs.cl)
+
+## Hoja de ruta
+
+Planificado, todavía no disponible: Kore Cloud (crear un sitio en minutos sin servidor propio) · instalador gráfico · kAdmin 3.0 · generador de apps con IA a partir de una descripción · auditoría de seguridad externa · medición pública de rendimiento frente a un CMS tradicional.
 
 ---
 
 ## ¿Qué es Kore?
 
-Kore es un framework CMS/PWA que combina la liviandad de un stack minimalista (Node + Express + SQLite) con la potencia de la IA (Claude/Anthropic) para generar contenido y personalizar el diseño.
+Kore combina un stack minimalista (Node + Express + SQLite) con IA integrada (Claude, de Anthropic) para generar contenido y personalizar el diseño, y un panel que el dueño usa desde el teléfono.
 
 ### Características principales
 
-- **Motor ultraligero**: Node.js 20 + Express 4 + SQLite WAL. Sin MySQL, sin PHP, sin Redis.
-- **IA nativa**: Claude API integrada para procesamiento de comunicados de prensa, extracción de datos de imágenes y customización de diseño.
+- **Motor liviano**: Node.js 20 + Express 4 + SQLite WAL. Sin MySQL, sin PHP, sin Redis. Menos de 110 MB de memoria por app.
+- **IA integrada**: Claude convierte comunicados en artículos, extrae datos de imágenes y ajusta el diseño en lenguaje natural.
 - **Sistema de Kliks**: Plantillas de frontend intercambiables (Mediatiko, Direktorio, Korporativo).
-- **Sistema de Kits**: Extensiones de datos con CRUD automático desde JSON schema.
+- **Sistema de Kits**: Extensiones de datos con CRUD automático desde JSON, sin código ejecutable.
 - **kAdmin responsive**: Panel de administración mobile-first con bottom nav.
 - **PWA-ready**: Push notifications, OG proxy para redes sociales, SSR parcial del hero.
 - **Instalación en 1 comando**: `kinstall.sh` configura Node, PM2, Nginx y SSL.
-- **kustomizer IA**: Customización del diseño mediante lenguaje natural.
+- **kustomizer IA**: Personalización del diseño mediante lenguaje natural.
 
 ## Stack tecnológico
 
@@ -93,9 +136,9 @@ kore/
 ├── kliks/                 # Plantillas de frontend
 │   ├── mediatiko/         # Klik para medios de noticias
 │   ├── direktorio/        # Klik para directorios
-│   └── korporativo/       # Klik para sitios corporativos
+│   └── korporativo/       # Klik para sitios de empresa
 ├── kits/                  # Definiciones de Kits (.kit.json)
-├── docs/                  # Guía de instalación y soporte
+├── docs/                  # Guía de instalación y troubleshooting
 ├── kinstall.sh            # Instalador de servidor
 ├── ecosystem.config.js    # Configuración PM2
 ├── backup.js              # Backup automático de DB
@@ -169,7 +212,7 @@ npm run backup     # Backup manual de la base de datos
 
 **Causa:** Configuración restrictiva del rate limiting en Nginx (versión anterior: `rate=5r/m`).
 
-**Solución:** Actualizar configuración de Nginx a `rate=10r/s` y `burst=20`. Ver detalles completos en [docs/soporte/error-429.md](./docs/soporte/error-429.md).
+**Solución:** Actualizar configuración de Nginx a `rate=10r/s` y `burst=20`. Ver detalles completos en [docs/troubleshooting/error-429.md](./docs/troubleshooting/error-429.md).
 
 **Fix rápido en servidor activo:**
 ```bash
@@ -193,4 +236,4 @@ Para reportar vulnerabilidades, lee [SECURITY.md](./SECURITY.md). Para contribui
 
 ---
 
-**Kore Framework** · [nadIA Labs](https://nadialabs.cl) · hola@nadialabs.cl
+**Kore Framework** · [nadIA Labs](https://nadialabs.cl) · contacto@nadialabs.cl
