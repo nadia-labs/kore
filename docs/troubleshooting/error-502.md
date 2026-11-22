@@ -16,13 +16,13 @@ ssh usuario@servidor-ip
 pm2 status
 
 # 2. Ver logs del Motor (últimas 50 líneas)
-pm2 logs cpcomunicaciones-nadialabs-cl --lines 50 --nostream
+pm2 logs tu-app --lines 50 --nostream
 
 # 3. Verificar puerto en .env
-cat /var/www/cpcomunicaciones-nadialabs-cl/.env | grep PORT
+cat /var/www/tu-app/.env | grep PORT
 
 # 4. Verificar configuración de Nginx
-cat /etc/nginx/sites-available/cpcomunicaciones-nadialabs-cl | grep proxy_pass
+cat /etc/nginx/sites-available/tu-app | grep proxy_pass
 
 # 5. Test de conectividad interna
 curl http://localhost:3001/admin
@@ -38,13 +38,13 @@ curl http://localhost:3001/admin
 
 ```bash
 # Ver por qué crasheó
-pm2 logs cpcomunicaciones-nadialabs-cl --err --lines 100
+pm2 logs tu-app --err --lines 100
 
 # Reiniciar
-pm2 restart cpcomunicaciones-nadialabs-cl
+pm2 restart tu-app
 
 # Si sigue crasheando, ver .env
-cat /var/www/cpcomunicaciones-nadialabs-cl/.env
+cat /var/www/tu-app/.env
 ```
 
 **Errores comunes en logs:**
@@ -56,13 +56,13 @@ cat /var/www/cpcomunicaciones-nadialabs-cl/.env
 
 ```bash
 # Ver puerto del Motor
-cat /var/www/cpcomunicaciones-nadialabs-cl/.env | grep PORT
+cat /var/www/tu-app/.env | grep PORT
 
 # Ver puerto en Nginx
-sudo cat /etc/nginx/sites-available/cpcomunicaciones-nadialabs-cl | grep proxy_pass
+sudo cat /etc/nginx/sites-available/tu-app | grep proxy_pass
 
 # Si son diferentes, corregir nginx:
-sudo nano /etc/nginx/sites-available/cpcomunicaciones-nadialabs-cl
+sudo nano /etc/nginx/sites-available/tu-app
 # Cambiar proxy_pass http://127.0.0.1:XXXX al puerto correcto
 
 # Recargar nginx
@@ -73,7 +73,7 @@ sudo nginx -t && sudo nginx -s reload
 
 ```bash
 # Ver error exacto
-pm2 logs cpcomunicaciones-nadialabs-cl --err --lines 200
+pm2 logs tu-app --err --lines 200
 
 # Errores comunes:
 # - SyntaxError → archivo corrupto, re-descargar
@@ -81,22 +81,22 @@ pm2 logs cpcomunicaciones-nadialabs-cl --err --lines 200
 # - Database locked → permisos incorrectos
 
 # Reinstalar dependencias
-cd /var/www/cpcomunicaciones-nadialabs-cl
+cd /var/www/tu-app
 npm install --production
 
 # Reiniciar
-pm2 restart cpcomunicaciones-nadialabs-cl
+pm2 restart tu-app
 ```
 
 ### Caso 4: Instalación quedó incompleta
 
 ```bash
 # Verificar que /setup se completó
-cat /var/www/cpcomunicaciones-nadialabs-cl/.env | grep KORE_INSTALLED
+cat /var/www/tu-app/.env | grep KORE_INSTALLED
 # Debe decir: KORE_INSTALLED=true
 
 # Si dice false, ve a:
-https://cpcomunicaciones.nadialabs.cl/setup
+https://tudominio.cl/setup
 # Y completa el formulario
 ```
 
@@ -108,16 +108,16 @@ Reinstalación limpia:
 
 ```bash
 # 1. Detener todo
-pm2 delete cpcomunicaciones-nadialabs-cl
+pm2 delete tu-app
 pm2 save
 
 # 2. Limpiar directorio
-sudo rm -rf /var/www/cpcomunicaciones-nadialabs-cl
+sudo rm -rf /var/www/tu-app
 
 # 3. Volver a correr kInstall
 bash <(curl -fsSL https://raw.githubusercontent.com/nadia-labs/kore/main/kinstall.sh)
 
-# Dominio: cpcomunicaciones.nadialabs.cl
+# Dominio: tudominio.cl
 # Puerto: 3001 (default)
 # SSL: s
 ```

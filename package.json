@@ -31,7 +31,7 @@
     "framework",
     "nadia"
   ],
-  "author": "nadIA Labs <hola@nadia.cl>",
+  "author": "nadIA Comunicaciones SpA (nadIA Labs) <contacto@nadialabs.cl>",
   "license": "Apache-2.0",
   "private": true,
   "devDependencies": {
