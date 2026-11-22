@@ -1611,6 +1611,11 @@ function eh(s) {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+// La base de datos debe existir antes de cargar los Kits: en una instalación
+// nueva, cargarKits() consulta kits_instalados antes de que initDB() la cree.
+initDB();
+runMigrations();
+
 // Kits dinámicos — deben registrarse ANTES del catch-all SPA
 cargarKits();
 
@@ -1679,9 +1684,6 @@ app.get('*', (req, res) => {
 // ══════════════════════════════════════════════
 //  ARRANQUE
 // ══════════════════════════════════════════════
-
-initDB();
-runMigrations();
 
 const server = app.listen(PORT, () => {
   console.log(`[Kore] ✓ ${PROJECT_NAME} corriendo en puerto ${PORT}`);
